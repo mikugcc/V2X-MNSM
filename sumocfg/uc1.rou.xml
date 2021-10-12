@@ -15,7 +15,7 @@
     <vehicle id="3" type="dft_type" arrivalLane="0" depart="0.00" route="stop0" color="red"/>
     <vehicle id="2" type="dft_type" depart="0.00" route="route0" departLane="1" arrivalLane = "1"  color="green"/>
     <vehicle id="0" type="dft_type" depart="0.00" route="route1" departLane="0" arrivalLane = "0"  color="yellow">
-        <stop lane="gneE0_0" startPos="0" endPos="1" duration="2"/>
+        <stop lane="gneE0_0" startPos="0" endPos="1" duration="1"/>
     </vehicle>
     <vehicle id="1" type="dft_type" depart="0.00" route="route1" departLane="0" arrivalLane = "0"  color="yellow">
     </vehicle>
