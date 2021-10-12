@@ -1,12 +1,11 @@
 from threading import Thread
-from mn_wifi.net import Mininet_wifi
 import traci
 
 class SumoControlThread(Thread): 
     
-    def __init__(self, name, net: Mininet_wifi, port:int=8813, order:int=1):
+    def __init__(self, name, port:int=8813, order:int=1):
         Thread.__init__(self,name=name)   
-        self._wifi_core = net
+        self._sumo_traci = traci
         traci.init(port)
         traci.setOrder(order)
 

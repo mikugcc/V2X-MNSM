@@ -1,8 +1,7 @@
-from mn_wifi.node import Car
 from typing import Tuple
-import abc, traci
+import traci
 
-class VlcControlUtil(metaclass=abc.ABCMeta): 
+class VlcControlUtil(object): 
 
     def __init__(self, sumo_v_id: int):
         self.__sumo_vlc = traci.vehicle
@@ -17,6 +16,18 @@ class VlcControlUtil(metaclass=abc.ABCMeta):
     @property
     def lane_index(self) -> int: 
         return self.__sumo_vlc.getLaneIndex(self.__sumo_id) 
+
+    @property
+    def distance(self) -> int: 
+        return self.__sumo_vlc.getDistance(self.__sumo_id) 
+    
+    @property
+    def name(self) -> int: 
+        return self.__sumo_id
+    
+    def stop(self) -> None: 
+        self.__sumo_vlc.setSpeed(self.__sumo_id, 0)
+
     
     @lane_index.setter
     def lane_index(self, value: int) -> None: 
