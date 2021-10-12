@@ -1,3 +1,4 @@
+from typing import Dict
 from mininet.log import setLogLevel, info
 from mn_wifi.cli import CLI
 from mn_wifi.net import Mininet_wifi, Car as MNCar
@@ -7,7 +8,8 @@ from mn_wifi.wmediumdConnector import interference
 from utils import SumoControlThread, VlcControlUtil
 from traci import StepListener
 from abc import ABCMeta, abstractmethod
-import select, json, subprocess
+from threading import Thread
+import json
 
 class StepController(StepListener, metaclass=ABCMeta):
 
@@ -26,42 +28,46 @@ class StepController(StepListener, metaclass=ABCMeta):
     
 
 class Car1Controller(StepController): 
-
     def __init__(self, sm_car: VlcControlUtil, mn_host: MNCar):
         super().__init__(sm_car, mn_host)
         self.__cur_lane = 0
 
+
     def __detact_obstruction(self) -> int: 
         curDis = self._sumo_vlc.distance
-        if (curDis > 60 and curDis < 100): return 0
+        if (curDis > 70 and curDis < 200): return 0
         else: return -1
 
     def _step_core(self):
         obs_lane_index = self.__detact_obstruction()
         if(obs_lane_index >= 0): 
-            warn_msg = f'Vehicle {self._sumo_vlc.name} detect an obstruciton on lane {obs_lane_index} !'
-            print(warn_msg)
             self.__cur_lane = obs_lane_index ^ 1 
-            cmd_rst = self._mn_host.cmd(f'echo "{warn_msg}" | nc -u -w0 -b 10.255.255.255 8080', shell=True)
-            print(f'WARM: {cmd_rst}')
+            warn_msg = f'Vehicle {self._sumo_vlc.name} detected an obstruciton on lane {obs_lane_index}'
+            self._mn_host.cmd(f'uc01_bcster 10.0.0.2 9092 {warn_msg}')
         self._sumo_vlc.lane_index = self.__cur_lane
     
 class Car2Controller(StepController): 
-
     def __init__(self, sm_car: VlcControlUtil, mn_host: MNCar):
         super().__init__(sm_car, mn_host)
+        self.__cont = {'data': None}
+        def monitor(out, mn: MNCar): 
+            out['data'] = mn.cmd('uc01_recver 10.0.0.2 9092')
+            print(f'CAR2 RECEIVE {out["data"]}')
+        self.__handler = Thread(name='Car2Handler',target=monitor, args=(self.__cont, mn_host))
+        self.__is_started = False
+        self.__is_received = False
         self.__cur_lane = 0
-        self.__rcv_popen = mn_host.popen('nc -luk 8080', shell= True, stdout=subprocess.PIPE)
-        self.__rcv_poll = select.poll()
-        self.__rcv_poll.register(self.__rcv_popen.stdout, select.POLLIN)
 
     def _step_core(self) :
-        if (self.__rcv_poll.poll(1)): 
-            print("READLINE")
-            in_str = f'[{self.__rcv_popen.readline()}]'
-            in_data = json.load(in_str)
-            print(f'Vehicle {self._sumo_vlc.name} received a message "{in_data}"')
-            obs_lane_index = int(in_data['LANE'])
+        if (not self.__is_started): 
+            self.__is_started = True
+            self.__handler.start()
+        if (self.__cont['data'] != None): 
+            in_data = json.loads(self.__cont['data'])
+            if not self.__is_received: 
+                self.__is_received = True
+                print(f'Vehicle {self._sumo_vlc.name} received a message "{in_data}"')
+            obs_lane_index = int(in_data['msg'][-1])
             self.__cur_lane = obs_lane_index ^ 1 
         self._sumo_vlc.lane_index = self.__cur_lane
         return None
@@ -82,10 +88,10 @@ def topology():
     }
     net.addAccessPoint(
         'e1', mac='00:00:00:11:00:01', channel='1',
-        position='100,25,0', range=100, **kwargs
+        position='100,25,0', txpower=40, **kwargs
     )
     info("*** Configuring Propagation Model\n")
-    net.setPropagationModel(model="logDistance", exp=4.5)
+    net.setPropagationModel(model="logDistance", exp=1.4)
 
     info("*** Configuring wifi nodes\n")
     net.configureWifiNodes()
@@ -113,16 +119,14 @@ def topology():
         exec_order=0,
         extra_params={'-d 1000'}
     )
-
     sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER')
-    sumo_ctl.add(Car1Controller(VlcControlUtil(0), net.cars[0]))
-    #sumo_ctl.add(Car2Controller(VlcControlUtil(1), net.cars[1]))
-
+    sumo_ctl.add(Car1Controller(VlcControlUtil("0"), net.cars[0]))
+    sumo_ctl.add(Car2Controller(VlcControlUtil("1"), net.cars[1]))
     sumo_ctl.start()
     info("***** TraCI Initialised\n")
-    __rcv_popen = net.cars[1].popen('nc', '-lu', '8080', stdout=subprocess.PIPE)
-    print(__rcv_popen.stdout.readline())
-    #CLI(net)
+
+    CLI(net)
+
     info("***** CLI Initialised\n")
 
     info("*** Stopping network\n")

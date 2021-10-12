@@ -3,7 +3,7 @@ import traci
 
 class VlcControlUtil(object): 
 
-    def __init__(self, sumo_v_id: int):
+    def __init__(self, sumo_v_id: str):
         self.__sumo_vlc = traci.vehicle
         self.__sumo_id = str(sumo_v_id)
         self.__duration = 0
