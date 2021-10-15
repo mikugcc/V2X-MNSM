@@ -11,6 +11,7 @@ uc01: config
 	sudo -E env PATH=$(PWD)/src/scripts:$(PATH) python src/usecase1.py
 clean: 
 	sudo mn -c
+	@[ -f mn* ] && sudo rm -f mn* || true
 	@[ -f .echo* ] && sudo rm -f .echo* || true
 	@[ -d ./tmp ] && sudo rm -rdf ./tmp || true
 	@[ -d */**/__pycache__ ] && sudo rm -rdf  */**/__pycache__ || true
