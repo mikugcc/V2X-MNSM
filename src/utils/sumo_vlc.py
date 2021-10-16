@@ -4,7 +4,8 @@ import traci
 class VlcControlUtil(object): 
 
     def __init__(self, sumo_v_id: str):
-        self.__sumo_vlc = traci.vehicle
+        self.traci = traci
+        self.__sumo_vlc = self.traci.vehicle
         self.__sumo_id = str(sumo_v_id)
         self.__duration = 0
 
@@ -24,10 +25,13 @@ class VlcControlUtil(object):
     @property
     def name(self) -> int: 
         return self.__sumo_id
+
+    def get_leader_with_distance(self) -> Tuple[str, float]: 
+        out = self.__sumo_vlc.getLeader(self.__sumo_id)
+        return out if out is not None else (None, None)
     
     def stop(self) -> None: 
         self.__sumo_vlc.setSpeed(self.__sumo_id, 0)
-
     
     @lane_index.setter
     def lane_index(self, value: int) -> None: 

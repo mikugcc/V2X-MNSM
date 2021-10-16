@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-import sys, json, socket
+import sys, socket
 
 if __name__ == '__main__':
     args = sys.argv[1:]
@@ -8,6 +8,6 @@ if __name__ == '__main__':
         udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp.bind((args[0], int(args[1])))
         data, addr = udp.recvfrom(1024)
-        print(json.dumps({'ip': addr, 'msg': data.decode()}))
-    except socket.error as e:
+        print(data.decode())
+    except Exception as e:
         print(f"ERROR OCCURRED: {str(e)}")

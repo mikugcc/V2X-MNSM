@@ -1,5 +1,4 @@
-all = ['SumoControlThread', 'VlcControlUtil', 'IntraVehicleCommunicator']
+all = ['SumoControlThread', 'VlcControlUtil', 'VlcStepController']
 
-from .sumo_ctr import SumoControlThread
+from .sumo_ctr import SumoControlThread, VlcStepController
 from .sumo_vlc import VlcControlUtil
-from .intra_vehicle import IntraVehicleCommunicator

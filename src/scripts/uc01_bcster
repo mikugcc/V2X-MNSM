@@ -6,7 +6,7 @@ if __name__ == '__main__':
     args = sys.argv[1:]
     try: 
         udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp.sendto(' '.join(args[2:]).encode(), (args[0], int(args[1])))
+        udp.sendto(str(args[2]).encode(), (args[0], int(args[1])))
         print("DATA SENT TO DESTINATION")
     except socket.error as e:
         print(f"ERROR OCCURRED: {str(e)}")
