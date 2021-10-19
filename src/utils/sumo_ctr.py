@@ -53,6 +53,7 @@ class VlcStepController(traci.StepListener, metaclass=ABCMeta):
                 self._step_core()
             except Exception as e: 
                 print(f'THERE IS A ERROR DURING EXECUTING\n\t{str(e)}')
+                raise e
         return True 
     
 
