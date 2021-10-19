@@ -26,6 +26,11 @@ class VlcControlUtil(object):
     def name(self) -> int: 
         return self.__sumo_id
 
+    '''
+    The is a bug for the traci.vehicle.getLeader method,
+    which will return None, if we change its lane during
+    SUMO default lane changing behaviour. 
+    '''
     def get_leader_with_distance(self) -> Tuple[str, float]: 
         out = self.__sumo_vlc.getLeader(self.__sumo_id)
         return out if out is not None else (None, None)
@@ -35,7 +40,7 @@ class VlcControlUtil(object):
     
     @lane_index.setter
     def lane_index(self, value: int) -> None: 
-        if self.__duration == 0: self.__duration = traci.simulation.getTime() + 1
+        if self.__duration == 0: self.__duration = int(traci.simulation.getTime()) + 1
         return self.__sumo_vlc.changeLane(self.__sumo_id, value, self.__duration)
 
 

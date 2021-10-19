@@ -7,7 +7,6 @@ from mn_wifi.link import wmediumd
 from mn_wifi.wmediumdConnector import interference
 from utils import SumoControlThread, VlcStepController, VlcControlUtil as SMCar
 from threading import Thread
-import json
 
 class Car1Controller(VlcStepController): 
     def __init__(self, sumo_car: SMCar, mnwf_car: MNCar):
@@ -16,12 +15,14 @@ class Car1Controller(VlcStepController):
 
     def __detact_obstruction(self) -> int: 
         leader, gap_with = self._sumo_car.get_leader_with_distance()
-        if (leader != '3' or gap_with >= 50): return -1
+        print(f'LEADER INFO IS {(leader, gap_with)}')
+        if (leader != '3' or gap_with >= 40): return -1 
         return self._sumo_car.lane_index
 
     def _step_core(self):
         obs_lane_index = self.__detact_obstruction()
         if(obs_lane_index >= 0): 
+            print(f'OBS AT LINE {(obs_lane_index)}')
             self.__cur_lane = obs_lane_index ^ 1 
             warn_msg = 0 # Means stop 
             self._mnwf_car.cmd(f'uc01_bcster 10.0.0.2 9092 {warn_msg}')
@@ -45,7 +46,7 @@ class Car2Controller(VlcStepController):
             self.__handler.start()
             self.__is_started = True
         while self.__msg_queue:
-            command_id = json.loads(self.__msg_queue.pop())
+            command_id = int(self.__msg_queue.pop())
             if command_id == 0: self._sumo_car.stop()
             elif command_id == 1: self.__cur_lane ^= 1
         self._sumo_car.lane_index = self.__cur_lane
