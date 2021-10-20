@@ -24,7 +24,7 @@ class Car1Controller(VlcStepController):
         if(obs_lane_index >= 0): 
             self.__cur_lane = obs_lane_index ^ 1 
             vlc_cmd = VlcCommand(type=VlcCmdType.CHANGE, pars=[self.__cur_lane])
-            str_cmd = f'uc01_bcster 10.0.0.2 9092 {vlc_cmd}'.replace('"', '\\"')
+            str_cmd = f'uc01_bcster 10.0.0.2 9090 {vlc_cmd}'.replace('"', '\\"')
             exe_out = self._mnwf_car.cmd(str_cmd)
             info(exe_out)
         self._sumo_car.lane_index = self.__cur_lane
@@ -35,9 +35,10 @@ class Car2Controller(VlcStepController):
         self.__cur_lane = 0
         self.__msg_queue:List[VlcCommand] = [] 
         def listener4Car1(queue: List, mn: MNCar): 
-            in_str = mn.cmd('uc01_recver 10.0.0.2 9092')
+            print(f'CAR2 START TO LISTEN')
+            in_str = mn.cmd('uc01_recver 10.0.0.2 9090')
+            print(f'CAR2 RECEIVE {in_str}')
             vlc_cmd = VlcCommand(str_cmd = in_str)
-            print(f'CAR2 RECEIVE {vlc_cmd}')
             queue.append(vlc_cmd)
         self.__listener = Thread(
             name='Car2Handler', 
@@ -54,7 +55,7 @@ class Car2Controller(VlcStepController):
             self.__is_started = True 
         while self.__msg_queue:
             vlc_cmd = self.__msg_queue.pop()
-            print(f'CAR2 RECEIVE {vlc_cmd}')
+            print(f'CAR2 HANDLE COMMAND {vlc_cmd}')
             if vlc_cmd.type == VlcCmdType.STOP: 
                 self._sumo_car.stop()
             elif vlc_cmd.type == VlcCmdType.CHANGE: 

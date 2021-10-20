@@ -25,7 +25,7 @@ class VlcCommand(object):
     
     @property
     def parameters(self) -> List: 
-        return self.parameters
+        return self.__pars
 
     def __str__(self):
         return json.dumps({
