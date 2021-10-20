@@ -8,6 +8,7 @@ from mn_wifi.wmediumdConnector import interference
 from utils import SumoControlThread, VlcStepController, VlcControlUtil as SMCar
 from utils import VlcCmdType, VlcCommand
 from threading import Thread
+import csv
 
 class Car1Controller(VlcStepController): 
     def __init__(self, sumo_car: SMCar, mnwf_car: MNCar):
@@ -24,7 +25,7 @@ class Car1Controller(VlcStepController):
         if(obs_lane_index >= 0): 
             self.__cur_lane = obs_lane_index ^ 1 
             vlc_cmd = VlcCommand(type=VlcCmdType.CHANGE, pars=[self.__cur_lane])
-            str_cmd = f'uc01_bcster 10.0.0.2 9090 {vlc_cmd}'.replace('"', '\\"')
+            str_cmd = f'uc01_bcster 10.0.0.2 9099 {vlc_cmd}'.replace('"', '\\"')
             exe_out = self._mnwf_car.cmd(str_cmd)
             info(exe_out)
         self._sumo_car.lane_index = self.__cur_lane
@@ -35,8 +36,7 @@ class Car2Controller(VlcStepController):
         self.__cur_lane = 0
         self.__msg_queue:List[VlcCommand] = [] 
         def listener4Car1(queue: List, mn: MNCar): 
-            print(f'CAR2 START TO LISTEN')
-            in_str = mn.cmd('uc01_recver 10.0.0.2 9090')
+            in_str = mn.cmd('uc01_recver 10.0.0.2 9099')
             print(f'CAR2 RECEIVE {in_str}')
             vlc_cmd = VlcCommand(str_cmd = in_str)
             queue.append(vlc_cmd)
@@ -62,6 +62,33 @@ class Car2Controller(VlcStepController):
                 self.__cur_lane = vlc_cmd.parameters[0]
         self._sumo_car.lane_index = self.__cur_lane
         return None
+
+class SumoRecorder(VlcStepController): 
+
+    def __init__(self, all_cars: List[SMCar]) -> None:
+        super().__init__(None, None)
+        self.__step = 0
+        self.__all_cars = all_cars
+        self.__file = open('./output.csv', mode='a')
+        self.__writer = csv.writer(self.__file, delimiter=',')
+        self.__writer.writerow(['STEP', 'CAR', 'LEADER', 'LEADER GAP', 'MILEAGE'])
+        
+    
+    def _step_core(self) -> bool:
+        self.__step += 1
+        for sm_car in self.__all_cars: 
+            leader, gap = sm_car.get_leader_with_distance()
+            self.__writer.writerow([
+                self.__step, 
+                sm_car.name, 
+                str(leader), str(gap), 
+                sm_car.distance
+            ])
+        return None
+
+    def __del__(self): 
+        self.__file.close()
+        super().__del__()
 
 
 def topology():
@@ -111,8 +138,10 @@ def topology():
         extra_params={'-d 1000'}
     )
     sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER')
-    sumo_ctl.add(Car1Controller(SMCar('0'), net.cars[0]))
-    sumo_ctl.add(Car2Controller(SMCar('1'), net.cars[1]))
+    sumo_cars = [SMCar('0'), SMCar('1')]
+    sumo_ctl.add(Car1Controller(sumo_cars[0], net.cars[0]))
+    sumo_ctl.add(Car2Controller(sumo_cars[1], net.cars[1]))
+    sumo_ctl.add(SumoRecorder(sumo_cars))
     sumo_ctl.start()
     info("***** TraCI Initialised\n")
 
