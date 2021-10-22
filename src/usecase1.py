@@ -6,8 +6,7 @@ from mn_wifi.sumo.runner import sumo
 from mn_wifi.link import wmediumd
 from mn_wifi.wmediumdConnector import interference
 from utils import SumoControlThread, VlcStepController, VlcControlUtil as SMCar
-from utils import VlcCmdType, VlcCommand
-from threading import Thread
+from utils import VlcCmdType, VlcCommand, async_func
 import csv
 
 class Car1Controller(VlcStepController): 
@@ -25,37 +24,33 @@ class Car1Controller(VlcStepController):
         if(obs_lane_index >= 0): 
             self.__cur_lane = obs_lane_index ^ 1 
             vlc_cmd = VlcCommand(type=VlcCmdType.CHANGE, pars=[self.__cur_lane])
-            str_cmd = f'uc01_bcster 10.0.0.2 9099 {vlc_cmd}'.replace('"', '\\"')
+            str_cmd = f'uc01_bcster 10.0.0.2 9090 {vlc_cmd}'.replace('"', '\\"')
             exe_out = self._mnwf_car.cmd(str_cmd)
+            self._sumo_car.message_backup.append(('outgoing', str(vlc_cmd)))
             info(exe_out)
         self._sumo_car.lane_index = self.__cur_lane
     
 class Car2Controller(VlcStepController): 
+
     def __init__(self, sm_car: SMCar, mnwf_car: MNCar):
         super().__init__(sm_car, mnwf_car)
         self.__cur_lane = 0
         self.__msg_queue:List[VlcCommand] = [] 
-        def listener4Car1(queue: List, mn: MNCar): 
-            in_str = mn.cmd('uc01_recver 10.0.0.2 9099')
-            print(f'CAR2 RECEIVE {in_str}')
-            vlc_cmd = VlcCommand(str_cmd = in_str)
-            queue.append(vlc_cmd)
-        self.__listener = Thread(
-            name='Car2Handler', 
-            target=listener4Car1, 
-            args=[self.__msg_queue, self._mnwf_car]
-        )  
-        self.__is_started = False
+    
+    @async_func
+    def listen_message(self):
+        rcv_data = self._mnwf_car.cmd('uc01_recver 10.0.0.2 9090')
+        self.__msg_queue.append(rcv_data)
 
     def _step_core(self):
         # If not start new thread there, 
         # There will be an exception from socket 
-        if not self.__is_started:
-            self.__listener.start()
-            self.__is_started = True 
+        if not self._mnwf_car.waiting: self.listen_message()
         while self.__msg_queue:
-            vlc_cmd = self.__msg_queue.pop()
-            print(f'CAR2 HANDLE COMMAND {vlc_cmd}')
+            vlc_str = self.__msg_queue.pop()
+            info(f'CAR2 HANDLE COMMAND {vlc_str}')
+            vlc_cmd = VlcCommand(str_cmd=str(vlc_str))
+            self._sumo_car.message_backup.append(('incoming', str(vlc_cmd)))
             if vlc_cmd.type == VlcCmdType.STOP: 
                 self._sumo_car.stop()
             elif vlc_cmd.type == VlcCmdType.CHANGE: 
@@ -65,25 +60,34 @@ class Car2Controller(VlcStepController):
 
 class SumoRecorder(VlcStepController): 
 
-    def __init__(self, all_cars: List[SMCar]) -> None:
+    def __init__(self, sumo_cars: List[SMCar], wifi_cars: List[MNCar]) -> None:
         super().__init__(None, None)
         self.__step = 0
-        self.__all_cars = all_cars
+        self.__all_cars = list(zip(sumo_cars, wifi_cars))
         self.__file = open('./output.csv', mode='a')
         self.__writer = csv.writer(self.__file, delimiter=',')
-        self.__writer.writerow(['STEP', 'CAR', 'LEADER', 'LEADER GAP', 'MILEAGE'])
+        self.__writer.writerow([
+            'STEP', 'TIME', 'CAR', 
+            'LEADER', 'LEADER_DISTANCE', 'DRIVING_DISTANCE', 
+            'MSG_QUEUE', 'SIGNAL'
+        ])
         
     
     def _step_core(self) -> bool:
         self.__step += 1
-        for sm_car in self.__all_cars: 
-            leader, gap = sm_car.get_leader_with_distance()
+        for sm_car, wf_car in self.__all_cars:
+            leader_name, leader_distance = sm_car.get_leader_with_distance()
             self.__writer.writerow([
                 self.__step, 
-                sm_car.name, 
-                str(leader), str(gap), 
-                sm_car.distance
+                f'{SumoControlThread.simulation_time()}s',
+                f'Vehicle.{sm_car.name}', 
+                leader_name if leader_name else "No leader", 
+                leader_distance if leader_distance else "No leader", 
+                sm_car.distance if sm_car.distance > 0 else "Not initialised", 
+                sm_car.message_backup, 
+                f'{wf_car.wintfs[0].rssi}@{wf_car.wintfs[0].name}'
             ])
+            sm_car.message_backup.clear()
         return None
 
     def __del__(self): 
@@ -141,7 +145,7 @@ def topology():
     sumo_cars = [SMCar('0'), SMCar('1')]
     sumo_ctl.add(Car1Controller(sumo_cars[0], net.cars[0]))
     sumo_ctl.add(Car2Controller(sumo_cars[1], net.cars[1]))
-    sumo_ctl.add(SumoRecorder(sumo_cars))
+    sumo_ctl.add(SumoRecorder(sumo_cars, net.cars[:2]))
     sumo_ctl.start()
     info("***** TraCI Initialised\n")
 

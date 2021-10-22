@@ -1,11 +1,15 @@
-from logging import warning
 from threading import Thread
 from mn_wifi.net import Car as MNCar
 from .sumo_vlc import VlcControlUtil as SMCar
 from abc import ABCMeta, abstractmethod
-import traci
+import traci, traceback, sys
+
+
 
 class SumoControlThread(Thread): 
+
+    def simulation_time(): 
+        return traci.simulation.getTime()
     
     def __init__(self, name, port:int=8813, order:int=1):
         Thread.__init__(self,name=name)   
@@ -19,9 +23,10 @@ class SumoControlThread(Thread):
             traci.simulationStep()
         traci.close()
     
-
     def add(self, listener: traci.StepListener):
         traci.addStepListener(listener)
+
+
         
 
 class VlcStepController(traci.StepListener, metaclass=ABCMeta):
@@ -38,7 +43,6 @@ class VlcStepController(traci.StepListener, metaclass=ABCMeta):
     @abstractmethod
     def _step_core(self) -> bool: pass
 
-
     '''
     An implementation for the abstract method, traci.StepListener.step() 
     The parameter t is the number of steps executed. In this implementation, 
@@ -51,8 +55,9 @@ class VlcStepController(traci.StepListener, metaclass=ABCMeta):
         for _ in range(t): 
             try:
                 self._step_core()
-            except Exception as e: 
-                print(f'THERE IS A ERROR DURING EXECUTING\n\t{str(e.with_traceback)}')
+            except Exception: 
+                traceback.print_exception(*sys.exc_info())
+
         return True 
     
 

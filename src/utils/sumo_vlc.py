@@ -1,13 +1,16 @@
-from typing import Tuple
+from typing import Tuple, List
 import traci
 
 class VlcControlUtil(object): 
 
+    SUMO_Traci = traci
+
     def __init__(self, sumo_v_id: str):
-        self.traci = traci
-        self.__sumo_vlc = self.traci.vehicle
+        self.__traci = traci
+        self.__sumo_vlc = self.__traci.vehicle
         self.__sumo_id = str(sumo_v_id)
         self.__duration = 0
+        self.__message_backup = []
 
     @property
     def position(self) -> Tuple: 
@@ -26,6 +29,10 @@ class VlcControlUtil(object):
     def name(self) -> int: 
         return self.__sumo_id
 
+    @property
+    def message_backup(self) -> List: 
+        return self.__message_backup
+
     '''
     The is a bug for the traci.vehicle.getLeader method,
     which will return None, if we change its lane during
@@ -40,7 +47,7 @@ class VlcControlUtil(object):
     
     @lane_index.setter
     def lane_index(self, value: int) -> None: 
-        if self.__duration == 0: self.__duration = int(traci.simulation.getTime()) + 1
+        if self.__duration == 0: self.__duration = int(self.__traci.simulation.getTime()) + 1
         return self.__sumo_vlc.changeLane(self.__sumo_id, value, self.__duration)
 
 
