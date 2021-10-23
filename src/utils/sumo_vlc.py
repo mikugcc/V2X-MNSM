@@ -1,4 +1,4 @@
-from typing import Tuple, List
+from typing import Dict, Tuple, List
 import traci
 
 class VlcControlUtil(object): 
@@ -10,7 +10,7 @@ class VlcControlUtil(object):
         self.__sumo_vlc = self.__traci.vehicle
         self.__sumo_id = str(sumo_v_id)
         self.__duration = 0
-        self.__message_backup = []
+        self.__message_backup = {'IN': [],'OUT':[]}
 
     @property
     def position(self) -> Tuple: 
@@ -30,7 +30,7 @@ class VlcControlUtil(object):
         return self.__sumo_id
 
     @property
-    def message_backup(self) -> List: 
+    def message_backup(self) -> Dict[str, List]: 
         return self.__message_backup
 
     '''

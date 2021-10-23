@@ -6,7 +6,7 @@ class VlcCmdType(Enum):
     NULL = -1
     STOP = 0
     START = 1
-    CHANGE = 2
+    CHANGE_TO = 2
 
 class VlcCommand(object): 
 
@@ -29,6 +29,13 @@ class VlcCommand(object):
 
     def __str__(self):
         return json.dumps({
+            'command': self.__type.name, 
+            'parameters': self.__pars
+        })
+    
+    @property
+    def serialisation(self):
+        return json.dumps({
             'command': self.__type.value, 
             'parameters': self.__pars
-        })        
+        })
