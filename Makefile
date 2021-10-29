@@ -8,8 +8,10 @@ init:
 config: 
 	$(info All data in sumo_config will be put into sumo_home)
 	sudo cp sumocfg/* ${SUMO_DATA}
-uc01: config clean 
+uc01: clean 
 	sudo -E env PATH=${ENV_PATH} python src/usecase1.py
+uc02: clean 
+	sudo -E env PATH=${ENV_PATH} python src/usecase2.py
 clean: 
 	sudo mn -c
 	@[ -f mn* ] && sudo rm -f mn* || true
