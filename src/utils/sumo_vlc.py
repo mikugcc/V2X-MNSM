@@ -42,6 +42,9 @@ class VlcControlUtil(object):
     def get_leader_with_distance(self) -> Tuple[str, float]: 
         out = self.__sumo_vlc.getLeader(self.__sumo_id)
         return out if out is not None else (None, None)
+
+    def get_speed(self) -> int:
+        return self.__sumo_vlc.getSpeed(self.__sumo_id)
     
     def stop(self) -> None: 
         self.__speed_bak = self.__sumo_vlc.getSpeed(self.__sumo_id)

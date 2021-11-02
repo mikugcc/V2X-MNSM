@@ -15,20 +15,14 @@ class TrafficLightController(VlcStepController):
     def __init__(self, mnwf_node: WiFiNode):
         super().__init__(None, None)
         self.__step_num = 0
+        self.__is_stoped = True
         self.__mnwf_node = mnwf_node
 
     def _step_core(self):
-        traffic_light_status = (self.__step_num / 50) % 2
-        if(traffic_light_status == 1): # STOP 
-            stop_cmd = VlcCommand(type=VlcCmdType.STOP)
-            self.__mnwf_node.popen([
-                'udp_bcs_sdr', 
-                '192.255.255.255', 
-                '9090', 
-                stop_cmd.serialisation
-            ])
-            print(f'Traffic Light broadcast data {stop_cmd}')
-        else: # START
+        self.__step_num += 1
+        if self.__step_num % 50 != 0: return
+        if(self.__is_stoped): # START 
+            self.__is_stoped = False
             start_cmd = VlcCommand(type=VlcCmdType.START)
             self.__mnwf_node.popen([
                 'udp_bcs_sdr', 
@@ -37,7 +31,16 @@ class TrafficLightController(VlcStepController):
                 start_cmd.serialisation
             ])
             print(f'Traffic Light broadcast data {start_cmd}')
-
+        else: # STOP
+            self.__is_stoped = True
+            stop_cmd = VlcCommand(type=VlcCmdType.STOP)
+            self.__mnwf_node.popen([
+                'udp_bcs_sdr', 
+                '192.255.255.255', 
+                '9090', 
+                stop_cmd.serialisation
+            ])
+            print(f'Traffic Light broadcast data {stop_cmd}')
 
 class CarController(VlcStepController): 
 
@@ -66,7 +69,7 @@ class CarController(VlcStepController):
             if vlc_cmd.type == VlcCmdType.STOP: 
                 self._sumo_car.stop()
             elif vlc_cmd.type == VlcCmdType.START: 
-                self.__cur_lane = vlc_cmd.parameters[0]
+                self._sumo_car.restart()
         self._sumo_car.lane_index = self.__cur_lane
         return None
     
@@ -78,22 +81,8 @@ def topology():
 
     info("*** Creating nodes\n")
 
-    car = net.addCar('car', txpower=40)
-    station = net.addStation('traffic light', txpower=20, position='100,0,0')
-
-    kwargs = {
-        'ssid': 'vanet-ssid', 
-        'mode': 'g', 
-        'passwd': '123456789a',
-        'encrypt': 'wpa2', 
-        'failMode': 'standalone', 
-        'datapath': 'user'
-    }
-
-    net.addAccessPoint(
-        'traffic-light', mac='00:00:00:11:00:01', channel='1',
-        position='100,25,0', txpower=40, **kwargs
-    )
+    car = net.addCar('car', wlans=1, encrypt=[''])
+    tfcl = net.addCar('trfic', wlans=1, encrypt=[''], position='100,0,0')
     
     info("*** Configuring Propagation Model\n")
     net.setPropagationModel(model="logDistance", exp=4.5)
@@ -101,11 +90,10 @@ def topology():
     info("*** Configuring wifi nodes\n")
     net.configureWifiNodes()
 
-    for node in [car, station]: 
+    for node in [car, tfcl]: 
         net.addLink(
-            node, intf=car.intfNames()[0], 
-            cls=mesh, ssid='meshNet', 
-            channel=5, ht_cap='HT40+', range=5
+            node, cls=mesh, intf=node.intfNames()[0], 
+            ssid='meshNet', channel=5, ht_cap='HT40+', range=5
         )        
 
 
@@ -115,7 +103,7 @@ def topology():
     for enb in net.aps:
         enb.start([])
     
-    for i, mn_car in enumerate([car, station], start=1): 
+    for i, mn_car in enumerate([car, tfcl], start=1): 
         mn_car.setIP(ip=f'192.168.0.{i}', intf=mn_car.wintfs[0].name)
 
     # Track the position of the nodes
@@ -129,7 +117,7 @@ def topology():
     
     info("***** Telemetry Initialised\n")
     project_root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    cfg_file_path = os.path.join(project_root_path, 'sumocfg', 'uc03' 'map.sumocfg')
+    cfg_file_path = os.path.join(project_root_path, 'sumocfg', 'uc03', 'map.sumocfg')
     net.useExternalProgram(
         program=V2xSumo, config_file=cfg_file_path,
         port=8813, clients=2, exec_order=0,
@@ -137,7 +125,7 @@ def topology():
     )
     sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER')
     sumo_ctl.add(CarController(SMCar('car'), car))
-    sumo_ctl.add(TrafficLightController(station))
+    sumo_ctl.add(TrafficLightController(tfcl))
     sumo_ctl.start()
     info("***** TraCI Initialised\n")
 
