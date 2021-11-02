@@ -1,0 +1,21 @@
+#!/usr/bin/python3
+
+from os import remove
+import sys, socket
+import traceback
+
+if __name__ == '__main__':
+    args = sys.argv[1:]
+    try: 
+        udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        sent_data = ' '.join(args[2:] if args[-1] != '-v' else args[2:-1])
+        udp.sendto(sent_data.encode(), (args[0], int(args[1])))
+        if '-v' == args[-1]: print(f"{sent_data} DATA SENT TO DESTINATION")
+        print(1)
+    except socket.error as e:
+        if '-v' == args[-1]: 
+            print(f"{sent_data} DATA SENT TO DESTINATION")
+            print(f"ERROR OCCURRED: {str(e)}")
+            traceback.print_exception(*sys.exc_info())
+        else: 
+            print(-1)

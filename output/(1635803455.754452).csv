@@ -1,0 +1,27 @@
+STEP;TIME;CAR;LEADER;LEADER_DISTANCE;DRIVING_DISTANCE;INCOMING_MSG;OUTGOING_MSG;SIGNAL_STRENGTH
+1;0.1s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+1;0.1s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+2;0.2s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+2;0.2s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+3;0.3s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+3;0.3s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+4;0.4s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+4;0.4s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+5;0.5s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+5;0.5s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+6;0.6s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+6;0.6s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+7;0.7s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+7;0.7s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+8;0.8s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+8;0.8s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+9;0.9s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+9;0.9s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+10;1.0s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+10;1.0s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+11;1.1s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+11;1.1s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+12;1.2s;car1;No leader;No leader;0.026000000000000023;[];[];car1-mp0<->wifiMesh
+12;1.2s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+13;1.3s;car1;No leader;No leader;0.07800000000000007;[];[];car1-mp0<->wifiMesh
+13;1.3s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh

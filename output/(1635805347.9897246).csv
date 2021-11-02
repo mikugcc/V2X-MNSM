@@ -1,0 +1,169 @@
+STEP;TIME;CAR;LEADER;LEADER_DISTANCE;DRIVING_DISTANCE;INCOMING_MSG;OUTGOING_MSG;SIGNAL_STRENGTH
+1;0.1s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+1;0.1s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+2;0.2s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+2;0.2s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+3;0.3s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+3;0.3s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+4;0.4s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+4;0.4s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+5;0.5s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+5;0.5s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+6;0.6s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+6;0.6s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+7;0.7s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+7;0.7s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+8;0.8s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+8;0.8s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+9;0.9s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+9;0.9s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+10;1.0s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+10;1.0s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+11;1.1s;car1;No leader;No leader;Not initialised;[];[];car1-mp0<->wifiMesh
+11;1.1s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+12;1.2s;car1;No leader;No leader;0.026000000000000023;[];[];car1-mp0<->wifiMesh
+12;1.2s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+13;1.3s;car1;No leader;No leader;0.07800000000000007;[];[];car1-mp0<->wifiMesh
+13;1.3s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+14;1.4s;car1;No leader;No leader;0.15600000000000014;[];[];car1-mp0<->wifiMesh
+14;1.4s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+15;1.5s;car1;No leader;No leader;0.26000000000000023;[];[];car1-mp0<->wifiMesh
+15;1.5s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+16;1.6s;car1;No leader;No leader;0.3900000000000001;[];[];car1-mp0<->wifiMesh
+16;1.6s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+17;1.7s;car1;No leader;No leader;0.5460000000000003;[];[];car1-mp0<->wifiMesh
+17;1.7s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+18;1.8s;car1;No leader;No leader;0.7280000000000002;[];[];car1-mp0<->wifiMesh
+18;1.8s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+19;1.9s;car1;No leader;No leader;0.9360000000000002;[];[];car1-mp0<->wifiMesh
+19;1.9s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+20;2.0s;car1;No leader;No leader;1.17;[];[];car1-mp0<->wifiMesh
+20;2.0s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+21;2.1s;car1;No leader;No leader;1.4299999999999997;[];[];car1-mp0<->wifiMesh
+21;2.1s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+22;2.2s;car1;No leader;No leader;1.7159999999999997;[];[];car1-mp0<->wifiMesh
+22;2.2s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+23;2.3s;car1;No leader;No leader;2.0279999999999996;[];[];car1-mp0<->wifiMesh
+23;2.3s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+24;2.4s;car1;No leader;No leader;2.3659999999999997;[];[];car1-mp0<->wifiMesh
+24;2.4s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+25;2.5s;car1;No leader;No leader;2.7299999999999995;[];[];car1-mp0<->wifiMesh
+25;2.5s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+26;2.6s;car1;No leader;No leader;3.119999999999999;[];[];car1-mp0<->wifiMesh
+26;2.6s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+27;2.7s;car1;No leader;No leader;3.5359999999999987;[];[];car1-mp0<->wifiMesh
+27;2.7s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+28;2.8s;car1;No leader;No leader;3.977999999999999;[];[];car1-mp0<->wifiMesh
+28;2.8s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+29;2.9s;car1;No leader;No leader;4.445999999999999;[];[];car1-mp0<->wifiMesh
+29;2.9s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+30;3.0s;car1;No leader;No leader;4.939999999999999;[];[];car1-mp0<->wifiMesh
+30;3.0s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+31;3.1s;car1;No leader;No leader;5.459999999999998;[];[];car1-mp0<->wifiMesh
+31;3.1s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+32;3.2s;car1;No leader;No leader;6.005999999999998;[];[];car1-mp0<->wifiMesh
+32;3.2s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+33;3.3s;car1;No leader;No leader;6.577999999999998;[];[];car1-mp0<->wifiMesh
+33;3.3s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+34;3.4s;car1;No leader;No leader;7.175999999999997;[];[];car1-mp0<->wifiMesh
+34;3.4s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+35;3.5s;car1;No leader;No leader;7.799999999999997;[];[];car1-mp0<->wifiMesh
+35;3.5s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+36;3.6s;car1;No leader;No leader;8.449999999999998;[];[];car1-mp0<->wifiMesh
+36;3.6s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+37;3.7s;car1;No leader;No leader;9.125999999999998;[];[];car1-mp0<->wifiMesh
+37;3.7s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+38;3.8s;car1;No leader;No leader;9.827999999999998;[];[];car1-mp0<->wifiMesh
+38;3.8s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+39;3.9s;car1;No leader;No leader;10.555999999999997;[];[];car1-mp0<->wifiMesh
+39;3.9s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+40;4.0s;car1;No leader;No leader;11.309999999999997;[];[];car1-mp0<->wifiMesh
+40;4.0s;car2;No leader;No leader;Not initialised;[];[];car2-mp0<->wifiMesh
+41;4.1s;car1;No leader;No leader;12.089999999999996;[];[];car1-mp0<->wifiMesh
+41;4.1s;car2;car1;0.48999999999999666;Not initialised;[];[];car2-mp0<->wifiMesh
+42;4.2s;car1;No leader;No leader;12.895999999999995;[];[];car1-mp0<->wifiMesh
+42;4.2s;car2;car1;1.269999999999996;0.0259999999999998;[];[];car2-mp0<->wifiMesh
+43;4.3s;car1;No leader;No leader;13.727999999999994;[];[];car1-mp0<->wifiMesh
+43;4.3s;car2;car1;2.0499999999999954;0.0779999999999994;[];[];car2-mp0<->wifiMesh
+44;4.4s;car1;No leader;No leader;14.585999999999993;[];[];car1-mp0<->wifiMesh
+44;4.4s;car2;car1;2.829999999999994;0.1559999999999997;[];[];car2-mp0<->wifiMesh
+45;4.5s;car1;No leader;No leader;15.469999999999992;[];[];car1-mp0<->wifiMesh
+45;4.5s;car2;car1;3.6099999999999923;0.2599999999999998;[];[];car2-mp0<->wifiMesh
+46;4.6s;car1;No leader;No leader;16.379999999999992;[];[];car1-mp0<->wifiMesh
+46;4.6s;car2;car1;4.389999999999993;0.3899999999999997;[];[];car2-mp0<->wifiMesh
+47;4.7s;car1;No leader;No leader;17.315999999999992;[];[];car1-mp0<->wifiMesh
+47;4.7s;car2;car1;5.169999999999993;0.5459999999999994;[];[];car2-mp0<->wifiMesh
+48;4.8s;car1;No leader;No leader;18.27799999999999;[];[];car1-mp0<->wifiMesh
+48;4.8s;car2;car1;5.949999999999992;0.7279999999999998;[];[];car2-mp0<->wifiMesh
+49;4.9s;car1;No leader;No leader;19.26599999999999;[];[];car1-mp0<->wifiMesh
+49;4.9s;car2;car1;6.7299999999999915;0.9359999999999999;[];[];car2-mp0<->wifiMesh
+50;5.0s;car1;No leader;No leader;20.27999999999999;[];[];car1-mp0<->wifiMesh
+50;5.0s;car2;car1;7.509999999999991;1.17;[];[];car2-mp0<->wifiMesh
+51;5.1s;car1;No leader;No leader;21.31999999999999;[];[];car1-mp0<->wifiMesh
+51;5.1s;car2;car1;8.28999999999999;1.4299999999999997;[];[];car2-mp0<->wifiMesh
+52;5.2s;car1;No leader;No leader;22.38599999999999;[];[];car1-mp0<->wifiMesh
+52;5.2s;car2;car1;9.06999999999999;1.7159999999999993;[];[];car2-mp0<->wifiMesh
+53;5.3s;car1;obs;69.22200000000001;23.477999999999987;[];[];car1-mp0<->wifiMesh
+53;5.3s;car2;car1;9.849999999999987;2.0279999999999996;[];[];car2-mp0<->wifiMesh
+54;5.4s;car1;obs;68.10400000000001;24.595999999999986;[];[];car1-mp0<->wifiMesh
+54;5.4s;car2;car1;10.629999999999987;2.3659999999999997;[];[];car2-mp0<->wifiMesh
+55;5.5s;car1;obs;66.96000000000002;25.739999999999984;[];[];car1-mp0<->wifiMesh
+55;5.5s;car2;car1;11.409999999999986;2.7299999999999995;[];[];car2-mp0<->wifiMesh
+56;5.6s;car1;obs;65.79000000000002;26.909999999999982;[];[];car1-mp0<->wifiMesh
+56;5.6s;car2;car1;12.189999999999984;3.119999999999999;[];[];car2-mp0<->wifiMesh
+57;5.7s;car1;obs;64.59400000000002;28.10599999999998;[];[];car1-mp0<->wifiMesh
+57;5.7s;car2;car1;12.969999999999981;3.5359999999999996;[];[];car2-mp0<->wifiMesh
+58;5.8s;car1;obs;63.37200000000003;29.327999999999978;[];[];car1-mp0<->wifiMesh
+58;5.8s;car2;car1;13.749999999999979;3.9779999999999998;[];[];car2-mp0<->wifiMesh
+59;5.9s;car1;obs;62.124000000000024;30.57599999999998;[];[];car1-mp0<->wifiMesh
+59;5.9s;car2;car1;14.52999999999998;4.446;[];[];car2-mp0<->wifiMesh
+60;6.0s;car1;obs;60.85000000000002;31.84999999999998;[];[];car1-mp0<->wifiMesh
+60;6.0s;car2;car1;15.309999999999981;4.9399999999999995;[];[];car2-mp0<->wifiMesh
+61;6.1s;car1;obs;59.550000000000026;33.14999999999998;[];[];car1-mp0<->wifiMesh
+61;6.1s;car2;car1;16.08999999999998;5.459999999999999;[];[];car2-mp0<->wifiMesh
+62;6.2s;car1;obs;58.246693129878395;34.45330687012161;[];[];car1-mp0<->wifiMesh
+62;6.2s;car2;car1;16.84730687012161;6.0059999999999985;[];[];car2-mp0<->wifiMesh
+63;6.3s;car1;obs;56.943386259756764;35.75661374024324;[];[];car1-mp0<->wifiMesh
+63;6.3s;car2;car1;17.57861374024324;6.577999999999998;[];[];car2-mp0<->wifiMesh
+64;6.4s;car1;obs;55.64007938963513;37.05992061036487;[];[];car1-mp0<->wifiMesh
+64;6.4s;car2;car1;18.283920610364873;7.175999999999997;[];[];car2-mp0<->wifiMesh
+65;6.5s;car1;obs;54.3367725195135;38.3632274804865;[];[];car1-mp0<->wifiMesh
+65;6.5s;car2;car1;18.963227480486506;7.799999999999995;[];[];car2-mp0<->wifiMesh
+66;6.6s;car1;obs;53.03346564939187;39.66653435060813;[];[];car1-mp0<->wifiMesh
+66;6.6s;car2;car1;19.616534350608134;8.449999999999996;[];[];car2-mp0<->wifiMesh
+67;6.7s;car1;obs;51.73015877927024;40.96984122072976;[];[];car1-mp0<->wifiMesh
+67;6.7s;car2;car1;20.243841220729767;9.125999999999996;[];[];car2-mp0<->wifiMesh
+68;6.8s;car1;obs;50.42685190914861;42.27314809085139;[];[];car1-mp0<->wifiMesh
+68;6.8s;car2;car1;20.845148090851396;9.827999999999996;[];[];car2-mp0<->wifiMesh
+69;6.9s;car1;obs;49.12354503902698;43.576454960973024;[];[<utils.cmd_blr.VlcCommand object at 0x7f49c660fb50>];car1-mp0<->wifiMesh
+69;6.9s;car2;car1;21.42045496097303;10.555999999999996;[];[];car2-mp0<->wifiMesh
+70;7.0s;car1;car3;12.744135889698688;44.879761831094655;[];[];car1-mp0<->wifiMesh
+70;7.0s;car2;No leader;No leader;11.309999999999997;[];[];car2-mp0<->wifiMesh
+71;7.1s;car1;car3;12.94465382964317;46.183068701216285;[];[];car1-mp0<->wifiMesh
+71;7.1s;car2;No leader;No leader;12.089999999999998;[];[];car2-mp0<->wifiMesh
+72;7.2s;car1;car3;13.145171769587654;47.486375571337916;[];[];car1-mp0<->wifiMesh
+72;7.2s;car2;No leader;No leader;12.895999999999999;[];[];car2-mp0<->wifiMesh
+73;7.3s;car1;car3;13.345689709532136;48.78968244145955;[];[];car1-mp0<->wifiMesh
+73;7.3s;car2;No leader;No leader;13.728;[];[];car2-mp0<->wifiMesh
+74;7.4s;car1;car3;13.54620764947662;50.09298931158118;[];[];car1-mp0<->wifiMesh
+74;7.4s;car2;No leader;No leader;14.586;[];[];car2-mp0<->wifiMesh
+75;7.5s;car1;car3;13.746725589421104;51.39629618170281;[];[];car1-mp0<->wifiMesh
+75;7.5s;car2;No leader;No leader;15.47;[];[];car2-mp0<->wifiMesh
+76;7.6s;car1;car3;13.94724352936559;52.69960305182443;[];[];car1-mp0<->wifiMesh
+76;7.6s;car2;No leader;No leader;16.380000000000003;[];[];car2-mp0<->wifiMesh
+77;7.7s;car1;car3;14.147761469310076;54.00290992194606;[];[];car1-mp0<->wifiMesh
+77;7.7s;car2;No leader;No leader;17.316000000000003;[];[];car2-mp0<->wifiMesh
+78;7.8s;car1;car3;14.348279409254562;55.30621679206769;[];[];car1-mp0<->wifiMesh
+78;7.8s;car2;No leader;No leader;18.278;[];[];car2-mp0<->wifiMesh
+79;7.9s;car1;car3;14.548797349199049;56.60952366218932;[];[];car1-mp0<->wifiMesh
+79;7.9s;car2;No leader;No leader;19.266;[];[];car2-mp0<->wifiMesh
+80;8.0s;car1;car3;14.749315289143535;57.91283053231095;[];[];car1-mp0<->wifiMesh
+80;8.0s;car2;No leader;No leader;20.28;[];[];car2-mp0<->wifiMesh
+81;8.1s;car1;car3;14.949833229088021;59.21613740243257;[];[];car1-mp0<->wifiMesh
+81;8.1s;car2;car1;26.296137402432574;21.32;[];[];car2-mp0<->wifiMesh
+82;8.2s;car1;car3;15.150351169032508;60.519444272554196;[];[];car1-mp0<->wifiMesh
+82;8.2s;car2;car1;26.533444272554203;22.385999999999996;[];[];car2-mp0<->wifiMesh
+83;8.3s;car1;car3;15.350869108976994;61.82275114267583;[];[];car1-mp0<->wifiMesh
+83;8.3s;car2;car1;26.74475114267583;23.477999999999994;[];[];car2-mp0<->wifiMesh
+84;8.4s;car1;car3;15.55138704892148;63.12605801279746;[];[];car1-mp0<->wifiMesh
+84;8.4s;car2;car1;26.93005801279746;24.595999999999997;[];[];car2-mp0<->wifiMesh

@@ -64,7 +64,7 @@ class SumoRecorder(VlcStepController):
         super().__init__(None, None)
         self.__step = 0
         self.__all_cars = list(zip(sumo_cars, wifi_cars))
-        self.__file = open(f'./output({time.time()}).csv', mode='a')
+        self.__file = open(f'output/({time.time()}).csv', mode='a')
         self.__writer = csv.writer(self.__file, delimiter=';')
         self.__writer.writerow([
             'STEP', 'TIME', 'CAR', 

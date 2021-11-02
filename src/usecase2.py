@@ -24,10 +24,17 @@ class Car1Controller(VlcStepController):
         if(obs_lane_index >= 0): 
             self.__cur_lane = obs_lane_index ^ 1 
             vlc_cmd = VlcCommand(type=VlcCmdType.CHANGE_TO, pars=[self.__cur_lane])
-            str_cmd = f'uc01_bcster 192.168.0.2 9090 {vlc_cmd.serialisation}'.replace('"', '\\"')
-            exe_out = self._mnwf_car.cmd(str_cmd)
-            self._sumo_car.message_backup['OUT'].append(vlc_cmd)
-            info(exe_out)
+            out, err, exitcode  = self._mnwf_car.pexec([
+                'udp_bcs_sdr', 
+                '192.255.255.255', 
+                '9090', 
+                vlc_cmd.serialisation
+            ])
+            if exitcode == 0: 
+                self._sumo_car.message_backup['OUT'].append(vlc_cmd)
+                print(f'{self._sumo_car.name} broadcast data {vlc_cmd}')
+            else: 
+                print(f'FAILURE: \terror({err}) \tstdout({out})')
         self._sumo_car.lane_index = self.__cur_lane
     
 class Car2Controller(VlcStepController): 
@@ -36,20 +43,24 @@ class Car2Controller(VlcStepController):
         super().__init__(sm_car, mnwf_car)
         self.__cur_lane = 0
         self.__msg_queue:List[VlcCommand] = [] 
+        self.__is_listen = False
     
     @async_func
     def listen_message(self):
-        rcv_data = self._mnwf_car.cmd('uc01_recver 192.168.0.2 9090')
-        print(f'RECEIVE DATA {rcv_data}')
-        self.__msg_queue.append(rcv_data)
+        self.__is_listen = True
+        rcv_str, _, _ = self._mnwf_car.pexec(['udp_rcv', '192.255.255.255', '9090'])
+        rcv_cmd = VlcCommand(str_cmd=rcv_str)
+        print(f'{self._sumo_car.name} receives data {rcv_cmd}')
+        self.__msg_queue.append(rcv_cmd)
+        self.__is_listen = False
+        
 
     def _step_core(self):
         # If not start new thread there, 
         # There will be an exception from socket 
-        if not self._mnwf_car.waiting: self.listen_message()
+        if not self.__is_listen: self.listen_message()
         while self.__msg_queue:
-            vlc_str = self.__msg_queue.pop()
-            vlc_cmd = VlcCommand(str_cmd=vlc_str)
+            vlc_cmd = self.__msg_queue.pop()
             self._sumo_car.message_backup['IN'].append(vlc_cmd)
             if vlc_cmd.type == VlcCmdType.STOP: 
                 self._sumo_car.stop()
@@ -64,12 +75,12 @@ class SumoRecorder(VlcStepController):
         super().__init__(None, None)
         self.__step = 0
         self.__all_cars = list(zip(sumo_cars, wifi_cars))
-        self.__file = open(f'./output({time.time()}).csv', mode='a')
+        self.__file = open(f'output/({time.time()}).csv', mode='a')
         self.__writer = csv.writer(self.__file, delimiter=';')
         self.__writer.writerow([
             'STEP', 'TIME', 'CAR', 
             'LEADER', 'LEADER_DISTANCE', 'DRIVING_DISTANCE', 
-            'INCOMING_MSG', 'OUTGOING_MSG', 'SIGNAL_STRENGTH'
+            'INCOMING_MSG', 'OUTGOING_MSG', 'SIGNAL_RANGE'
         ])
         
     
@@ -84,8 +95,9 @@ class SumoRecorder(VlcStepController):
                 leader_name if leader_name else "No leader", 
                 leader_distance if leader_distance else "No leader", 
                 sm_car.distance if sm_car.distance > 0 else "Not initialised", 
-                str(sm_car.message_backup['IN']), str(sm_car.message_backup['OUT']),
-                str(wf_car.wintfs[0])
+                [str(each) for each in sm_car.message_backup['IN']], 
+                [str(each) for each in sm_car.message_backup['OUT']], 
+                str(wf_car.wintfs[0].range)
             ])
             for _, backup in sm_car.message_backup.items(): backup.clear()
         return None
@@ -111,6 +123,11 @@ def topology():
         'failMode': 'standalone', 
         'datapath': 'user'
     }
+
+    net.addAccessPoint(
+        'e1', mac='00:00:00:11:00:01', channel='1',
+        position='100,25,0', txpower=10, **kwargs
+    )
     
     info("*** Configuring Propagation Model\n")
     net.setPropagationModel(model="logDistance", exp=4.5)

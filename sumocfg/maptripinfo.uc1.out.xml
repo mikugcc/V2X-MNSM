@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2021-10-29 13:46:16 by Eclipse SUMO GUI Version 1.10.0
+<!-- generated on 2021-11-02 12:35:24 by Eclipse SUMO GUI Version 1.10.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
@@ -44,4 +44,5 @@
 -->
 
 <tripinfos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/tripinfo_file.xsd">
+    <tripinfo id="car3" depart="0.00" departLane="gneE0_1" departPos="5.10" departSpeed="0.00" departDelay="0.00" arrival="15.90" arrivalLane="gneE3_1" arrivalPos="50.00" arrivalSpeed="15.04" duration="15.90" routeLength="195.20" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="2.84" rerouteNo="0" devices="tripinfo_car3" vType="car" speedFactor="1.08" vaporized=""/>
 </tripinfos>

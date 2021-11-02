@@ -34,8 +34,8 @@ class VlcCommand(object):
         })
     
     @property
-    def serialisation(self):
+    def serialisation(self)->str:
         return json.dumps({
             'command': self.__type.value, 
             'parameters': self.__pars
-        })
+        }).replace(' ', '')

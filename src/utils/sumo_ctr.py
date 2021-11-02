@@ -56,6 +56,7 @@ class VlcStepController(traci.StepListener, metaclass=ABCMeta):
             try:
                 self._step_core()
             except Exception: 
+                print(f'CARNAME IS {self._sumo_car.name}')
                 traceback.print_exception(*sys.exc_info())
 
         return True 

@@ -10,6 +10,7 @@ class VlcControlUtil(object):
         self.__sumo_vlc = self.__traci.vehicle
         self.__sumo_id = str(sumo_v_id)
         self.__duration = 0
+        self.__speed_bak = 0
         self.__message_backup = {'IN': [],'OUT':[]}
 
     @property
@@ -43,8 +44,13 @@ class VlcControlUtil(object):
         return out if out is not None else (None, None)
     
     def stop(self) -> None: 
+        self.__speed_bak = self.__sumo_vlc.getSpeed(self.__sumo_id)
         self.__sumo_vlc.setSpeed(self.__sumo_id, 0)
     
+    def restart(self)-> None: 
+        if self.__speed_bak == 0: return
+        self.__sumo_vlc.setSpeed(self.__sumo_id, self.__speed_bak)
+
     @lane_index.setter
     def lane_index(self, value: int) -> None: 
         if self.__duration == 0: self.__duration = int(self.__traci.simulation.getTime()) + 1
