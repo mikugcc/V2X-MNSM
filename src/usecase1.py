@@ -1,17 +1,16 @@
 from typing import List
 from mininet.log import setLogLevel, info
 from mn_wifi.cli import CLI
-from mn_wifi.net import Mininet_wifi, Car as MNCar
+from mn_wifi.net import Mininet_wifi, Car
 from mn_wifi.link import wmediumd
 from mn_wifi.wmediumdConnector import interference
-from extension import V2xSumo
-from utils import VlcCmdType, VlcCommand, async_func
-from utils import SumoControlThread, VlcStepController, VlcControlUtil as SMCar
+from extension import *
+from message import *
 import os, csv, time
 
-class Car1Controller(VlcStepController): 
-    def __init__(self, sumo_car: SMCar, mnwf_car: MNCar):
-        super().__init__(sumo_car, mnwf_car)
+class Car1Controller(CarController): 
+    def __init__(self, sumo_vlc: SumoVehicle, mnwf_vlc: MnwfVehicle):
+        super().__init__(sumo_vlc, mnwf_vlc)
         self.__cur_lane = 0
 
     def __detact_obstruction(self) -> int: 
@@ -23,19 +22,17 @@ class Car1Controller(VlcStepController):
         obs_lane_index = self.__detact_obstruction()
         if(obs_lane_index >= 0): 
             self.__cur_lane = obs_lane_index ^ 1 
-            vlc_cmd = VlcCommand(type=VlcCmdType.CHANGE_TO, pars=[self.__cur_lane])
-            str_cmd = f'uc01_bcster 192.168.0.2 9090 {vlc_cmd.serialisation}'.replace('"', '\\"')
-            exe_out = self._mnwf_car.cmd(str_cmd)
-            self._sumo_car.message_backup['OUT'].append(vlc_cmd)
-            info(exe_out)
+            vlc_denm = DENM.MsgBuilder(type=DENM.Behavior.CHANGE_TO, pars=[self.__cur_lane])
+            self._mn_vlc.broadcast(vlc_denm.serialisation)
+            info(vlc_denm)
         self._sumo_car.lane_index = self.__cur_lane
     
-class Car2Controller(VlcStepController): 
+class Car2Controller(SumoStepListener): 
 
-    def __init__(self, sm_car: SMCar, mnwf_car: MNCar):
-        super().__init__(sm_car, mnwf_car)
+    def __init__(self, sumo_vlc: SumoVehicle, mnwf_vlc: MnwfVehicle):
+        super().__init__(sumo_vlc, mnwf_vlc)
         self.__cur_lane = 0
-        self.__msg_queue:List[VlcCommand] = [] 
+        self.__msg_queue:List[str] = [] 
     
     @async_func
     def listen_message(self):
@@ -49,16 +46,16 @@ class Car2Controller(VlcStepController):
         if not self._mnwf_car.waiting: self.listen_message()
         while self.__msg_queue:
             vlc_str = self.__msg_queue.pop()
-            vlc_cmd = VlcCommand(str_cmd=vlc_str)
+            vlc_cmd = DENM(str_cmd=vlc_str)
             self._sumo_car.message_backup['IN'].append(vlc_cmd)
-            if vlc_cmd.type == VlcCmdType.STOP: 
+            if vlc_cmd.type == Type.STOP: 
                 self._sumo_car.stop()
-            elif vlc_cmd.type == VlcCmdType.CHANGE_TO: 
+            elif vlc_cmd.type == Type.CHANGE_TO: 
                 self.__cur_lane = vlc_cmd.parameters[0]
         self._sumo_car.lane_index = self.__cur_lane
         return None
 
-class SumoRecorder(VlcStepController): 
+class SumoRecorder(SumoStepListener): 
 
     def __init__(self, sumo_cars: List[SMCar], wifi_cars: List[MNCar]) -> None:
         super().__init__(None, None)
@@ -143,7 +140,7 @@ def topology():
     project_root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     cfg_file_path = os.path.join(project_root_path, 'sumocfg', 'map.uc1.sumocfg')
     net.useExternalProgram(
-        program=V2xSumo, config_file=cfg_file_path,
+        program=SumoInvoker, config_file=cfg_file_path,
         port=8813, clients=2, exec_order=0,
         extra_params=['--delay', '1000', '--start', 'false']
     )

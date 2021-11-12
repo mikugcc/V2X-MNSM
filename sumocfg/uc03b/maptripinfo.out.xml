@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2021-11-02 15:08:30 by Eclipse SUMO GUI Version 1.10.0
+<!-- generated on 2021-11-09 15:20:50 by Eclipse SUMO GUI Version 1.10.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <net-file value="/home/wifi/v2x-fall-2021/sumocfg/uc03/net.xml"/>
-        <route-files value="/home/wifi/v2x-fall-2021/sumocfg/uc03/rou.xml"/>
+        <net-file value="/home/wifi/v2x-fall-2021/sumocfg/uc03b/net.xml"/>
+        <route-files value="/home/wifi/v2x-fall-2021/sumocfg/uc03b/rou.xml"/>
     </input>
 
     <output>
-        <tripinfo-output value="/home/wifi/v2x-fall-2021/sumocfg/uc03/maptripinfo.out.xml"/>
+        <tripinfo-output value="/home/wifi/v2x-fall-2021/sumocfg/uc03b/maptripinfo.out.xml"/>
     </output>
 
     <time>
@@ -34,7 +34,7 @@
     </traci_server>
 
     <gui_only>
-        <gui-settings-file value="/home/wifi/v2x-fall-2021/sumocfg/uc03/gui-settings.cfg"/>
+        <gui-settings-file value="/home/wifi/v2x-fall-2021/sumocfg/uc03b/gui-settings.cfg"/>
         <start value="false"/>
         <delay value="1000"/>
         <tracker-interval value="0.1"/>

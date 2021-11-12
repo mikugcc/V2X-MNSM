@@ -7,7 +7,7 @@ from mn_wifi.sumo.runner import sumo
 from subprocess import Popen, PIPE
 
 
-class V2xSumo(sumo):
+class SumoInvoker(sumo):
 
     def start(self, 
         mnwf_vlc: List[Car], 

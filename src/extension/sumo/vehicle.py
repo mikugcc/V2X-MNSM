@@ -1,17 +1,15 @@
-from typing import Dict, Tuple, List
 import traci
+from typing import Dict, Tuple, List
 
-class VlcControlUtil(object): 
-
-    SUMO_Traci = traci
+class SumoVehicle(object): 
 
     def __init__(self, sumo_v_id: str):
         self.__traci = traci
         self.__sumo_vlc = self.__traci.vehicle
-        self.__sumo_id = str(sumo_v_id)
+        self.__sumo_id = sumo_v_id
         self.__duration = 0
         self.__speed_bak = 0
-        self.__message_backup = {'IN': [],'OUT':[]}
+        self.__message_backup = {'IN': [],'OUT':[], 'TCPDUMP': []}
 
     @property
     def position(self) -> Tuple: 
@@ -47,12 +45,17 @@ class VlcControlUtil(object):
         return self.__sumo_vlc.getSpeed(self.__sumo_id)
     
     def stop(self) -> None: 
-        self.__speed_bak = self.__sumo_vlc.getSpeed(self.__sumo_id)
+        cur_speed = self.__sumo_vlc.getSpeed(self.__sumo_id)
+        if cur_speed == 0: return 
+        self.__speed_bak = cur_speed
         self.__sumo_vlc.setSpeed(self.__sumo_id, 0)
     
     def restart(self)-> None: 
         if self.__speed_bak == 0: return
         self.__sumo_vlc.setSpeed(self.__sumo_id, self.__speed_bak)
+
+    def speed(self, ex_sp)-> None: 
+        self.__sumo_vlc.setSpeed(self.__sumo_id, ex_sp)
 
     @lane_index.setter
     def lane_index(self, value: int) -> None: 

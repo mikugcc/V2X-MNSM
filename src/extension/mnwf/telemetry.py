@@ -1,7 +1,7 @@
 from mn_wifi.telemetry import telemetry, parseData
 import matplotlib.pyplot as plt
 
-class V2xTelemetry(telemetry): 
+class Telemetry(telemetry): 
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -1,8 +1,7 @@
-from threading import Thread
-from mn_wifi.net import Car as MNCar
-from .sumo_vlc import VlcControlUtil as SMCar
-from abc import ABCMeta, abstractmethod
+from typing import Optional
 import traci, traceback, sys
+from threading import Thread
+from abc import ABCMeta, abstractmethod
 
 
 
@@ -13,7 +12,6 @@ class SumoControlThread(Thread):
     
     def __init__(self, name, port:int=8813, order:int=1):
         Thread.__init__(self,name=name)   
-        self._sumo_traci = traci
         traci.init(port)
         traci.setOrder(order)
 
@@ -23,18 +21,19 @@ class SumoControlThread(Thread):
             traci.simulationStep()
         traci.close()
     
-    def add(self, listener: traci.StepListener):
-        traci.addStepListener(listener)
+    def add(self, listener: traci.StepListener) -> Optional[int]:
+        return traci.addStepListener(listener)
+    
+    def remove(self, listener: traci.StepListener) -> bool:
+        return traci.removeStepListener(listener)
 
 
         
 
-class VlcStepController(traci.StepListener, metaclass=ABCMeta):
+class SumoStepListener(traci.StepListener, metaclass=ABCMeta):
 
-    def __init__(self, sumo_car: SMCar, mnwf_car: MNCar) -> None:
+    def __init__(self) -> None:
         super().__init__() 
-        self._sumo_car = sumo_car
-        self._mnwf_car = mnwf_car
 
     '''
     It is an abstract method. 
@@ -56,9 +55,7 @@ class VlcStepController(traci.StepListener, metaclass=ABCMeta):
             try:
                 self._step_core()
             except Exception: 
-                print(f'CARNAME IS {self._sumo_car.name}')
                 traceback.print_exception(*sys.exc_info())
-
         return True 
     
 

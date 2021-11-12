@@ -2,26 +2,26 @@ import json
 from typing import List
 from enum import Enum
 
-class VlcCmdType(Enum): 
+class Behavior(Enum): 
     NULL = -1
     STOP = 0
     START = 1
     CHANGE_TO = 2
 
-class VlcCommand(object): 
+class MsgBuilder(object): 
 
-    def __init__(self, type: VlcCmdType = VlcCmdType.NULL, pars = [], str_cmd = None) -> None:
-        self.__type = type
+    def __init__(self, behavior: Behavior = Behavior.NULL, pars = [], str_cmd = None) -> None:
+        self.__behavior = behavior
         self.__pars = pars
         if str_cmd is not None:
             init_obj = json.loads(str_cmd) 
-            self.__type = VlcCmdType(init_obj['command'])
+            self.__behavior = Behavior(init_obj['command'])
             self.__pars = init_obj['parameters']
         return None 
 
     @property
-    def type(self) -> VlcCmdType:
-        return self.__type
+    def behavior(self) -> Behavior:
+        return self.__behavior
     
     @property
     def parameters(self) -> List: 
@@ -29,13 +29,13 @@ class VlcCommand(object):
 
     def __str__(self):
         return json.dumps({
-            'command': self.__type.name, 
+            'command': self.__behavior.name, 
             'parameters': self.__pars
         })
     
     @property
     def serialisation(self)->str:
         return json.dumps({
-            'command': self.__type.value, 
+            'command': self.__behavior.value, 
             'parameters': self.__pars
         }).replace(' ', '')

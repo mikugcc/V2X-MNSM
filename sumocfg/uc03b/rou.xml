@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+
+    <vType id="car" guiShape="passenger/sedan" sigma="0">
+        <param key="parking.distance.weight" value="1"/> 
+    </vType>
+
+
+    <route edges="gneE0 gneE3" id="route0"/>
+    <route edges="gneE4 gneE2" id="route1"/>
+    <vehicle id="car1" type="car" depart="0.00" route="route0" departLane="0" arrivalLane = "0"  color="yellow" />
+    <vehicle id="car2" type="car" depart="0.00" route="route1" departLane="0" arrivalLane = "0"  color="yellow" />
+
+</routes>
