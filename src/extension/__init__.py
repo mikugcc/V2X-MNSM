@@ -5,10 +5,10 @@ from .mnwf.vehicle import MnwfVehicle
 from .mnwf.telemetry import Telemetry
 from .mnwf.sumo_invoker import SumoInvoker
 
-from .car import CarController
+from .v2x import V2xVehicle
 
 all = [
     SumoVehicle, SumoControlThread, SumoStepListener, 
     MnwfVehicle, Telemetry, SumoInvoker,
-    CarController
+    V2xVehicle
 ]
