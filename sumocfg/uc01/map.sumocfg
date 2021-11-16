@@ -4,13 +4,13 @@
     
 
     <input>
-        <net-file value="uc1.net.xml"/>
-        <route-files value="uc1.rou.xml"/>
+        <net-file value="net.xml"/>
+        <route-files value="rou.xml"/>
         <gui-settings-file value="gui-settings.cfg"/>
     </input>
 
     <output>
-	<tripinfo-output value="maptripinfo.uc1.out.xml"/>
+	<tripinfo-output value="maptripinfo.out.xml"/>
     </output>
 
     <time>

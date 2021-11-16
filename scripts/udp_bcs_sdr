@@ -3,15 +3,17 @@ import sys, socket
 import traceback
 
 if __name__ == '__main__':
-    args = sys.argv[1:]
+    bind_inft_name = str(sys.argv[1])
+    to_ip, to_port = sys.argv[2].split(':')
     try: 
         udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        udp_addr = (args[0], int(args[1]))
+        if(to_ip.endswith('255')): 
+            udp.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        udp.setsockopt(socket.SOL_SOCKET, 25, bind_inft_name.encode())
         sent_data = None
         while sent_data != 'EXIT': 
             sent_data = input()
-            udp.sendto(sent_data.encode(), udp_addr)
+            udp.sendto(sent_data.encode(), (to_ip, int(to_port)))
             print(f"{sent_data} DATA BROADCASTED")
     except socket.error as e:
         print(f"ERROR OCCURRED: {str(e)}")

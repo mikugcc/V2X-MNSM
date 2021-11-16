@@ -13,9 +13,8 @@ def async_func(func: Callable):
 def async_readlines(into_stack: List[str], popen:Popen) -> None: 
     while popen.poll() is None: 
         for line in iter(popen.stdout.readline, 'b'): 
-            if line == None: continue
             if line == b'': break
-            print(f'RECEIVE IN async_readlines {line}')
+            if line == None: continue
             into_stack.append(line)
     into_stack.append('END OF THE IO')
     return None

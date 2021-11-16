@@ -3,10 +3,12 @@
 import sys, socket
 
 if __name__ == '__main__':
-    rcv_ip, rcv_port = sys.argv[1], int(sys.argv[2])
+    rcv_ip, rcv_port = sys.argv[1].split(':')
     try: 
         udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        udp.bind((rcv_ip, rcv_port))
+        if(rcv_ip.endswith('255')): 
+            udp.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        udp.bind((rcv_ip, int(rcv_port)))
         data = None
         while data != 'EXIT': 
             data = udp.recv(1024).decode()

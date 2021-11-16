@@ -1,115 +1,73 @@
 from typing import List
 from mininet.log import setLogLevel, info
 from mn_wifi.cli import CLI
-from mn_wifi.net import Mininet_wifi, Car as MNCar
-from mn_wifi.link import mesh, wmediumd
+from mn_wifi.net import Mininet_wifi
+from mn_wifi.link import mesh as Mesh, wmediumd
 from mn_wifi.wmediumdConnector import interference
-from utils import *
-from message import *
 from extension import *
+from message import *
 import os, csv, time
 
-class Car1Controller(SumoStepListener): 
-    def __init__(self, sumo_car: SMCar, mnwf_car: MNCar):
-        super().__init__(sumo_car, mnwf_car)
+class CarController(SumoStepListener): 
+    def __init__(self, v2x_vlc: V2xVehicle):
+        super().__init__()
+        self.__v2x_vlc = v2x_vlc
         self.__cur_lane = 0
 
     def __detact_obstruction(self) -> int: 
-        leader, gap_with = self._sumo_car.get_leader_with_distance()
+        leader, gap_with = self.__v2x_vlc.get_leader_with_distance()
         if (leader != 'obs' or gap_with >= 50): return -1 
-        return self._sumo_car.lane_index
-    
-    def cam_handle(self) -> None: 
-        time_stamp = SumoControlThread.simulation_time()
-        vehicle_position = self._sumo_car.distance
-
-        return None
-
-    def denm_handle(self) -> None: 
-        
-        return None
+        return self.__v2x_vlc.lane_index
 
     def _step_core(self):
         obs_lane_index = self.__detact_obstruction()
         if(obs_lane_index >= 0): 
             self.__cur_lane = obs_lane_index ^ 1 
-            vlc_cmd = DENM(type=Type.CHANGE_TO, pars=[self.__cur_lane])
-            out, err, exitcode = self._mnwf_car.pexec([
-                'udp_bcs_sdr', 
-                '192.255.255.255', 
-                '9090', 
-                vlc_cmd.serialisation
-            ])
-            if exitcode == 0: 
-                self._sumo_car.message_backup['OUT'].append(vlc_cmd)
-                print(f'{self._sumo_car.name} broadcast data {vlc_cmd}')
-            else: 
-                print(f'FAILURE: \terror({err}) \tstdout({out})')
-        self._sumo_car.lane_index = self.__cur_lane
-    
-class Car2Controller(SumoStepListener): 
-
-    def __init__(self, sm_car: SMCar, mnwf_car: MNCar):
-        super().__init__(sm_car, mnwf_car)
-        self.__cur_lane = 0
-        self.__msg_queue:List[DENM] = [] 
-        self.__is_listen = False
-    
-    @async_func
-    def listen_message(self):
-        self.__is_listen = True
-        rcv_str, _, _ = self._mnwf_car.pexec(['udp_rcv', '192.255.255.255', '9090'])
-        rcv_cmd = DENM(str_cmd=rcv_str)
-        print(f'{self._sumo_car.name} receives data {rcv_cmd}')
-        self.__msg_queue.append(rcv_cmd)
-        self.__is_listen = False
-        
-
-    def _step_core(self):
-        # If not start new thread there, 
-        # There will be an exception from socket 
-        if not self.__is_listen: self.listen_message()
-        while self.__msg_queue:
-            vlc_cmd = self.__msg_queue.pop()
-            self._sumo_car.message_backup['IN'].append(vlc_cmd)
-            if vlc_cmd.type == Type.STOP: 
-                self._sumo_car.stop()
-            elif vlc_cmd.type == Type.CHANGE_TO: 
-                self.__cur_lane = vlc_cmd.parameters[0]
-        self._sumo_car.lane_index = self.__cur_lane
+            vlc_denm = DENM.MsgBuilder(DENM.Behavior.CHANGE_TO, [self.__cur_lane])
+            out = self.__v2x_vlc.broadcast_by_wifi(vlc_denm.serialisation)
+            print(out)
+        self.__v2x_vlc.lane_index = self.__cur_lane
+        while self.__v2x_vlc.received_bcst_stack: 
+            in_msg = self.__v2x_vlc.received_bcst_stack.pop()
+            vlc_denm = DENM.MsgBuilder(str_cmd=in_msg)
+            if vlc_denm.behavior == DENM.Behavior.STOP:
+                self.__v2x_vlc.stop()
+            elif vlc_denm.behavior == DENM.Behavior.CHANGE_TO: 
+                self.__cur_lane = vlc_denm.parameters[0]
+            info(f'\tNAME: {self.__v2x_vlc.name}\tMSG: {in_msg}\n')
+        self.__v2x_vlc.lane_index = self.__cur_lane
         return None
 
-class SumoRecorder(SumoStepListener): 
+class DataCapturer(SumoStepListener): 
 
-    def __init__(self, sumo_cars: List[SMCar], wifi_cars: List[MNCar]) -> None:
-        super().__init__(None, None)
+    def __init__(self, v2x_vlcs: List[V2xVehicle]):
+        super().__init__()
         self.__step = 0
-        self.__all_cars = list(zip(sumo_cars, wifi_cars))
+        self.__v2x_vlcs = v2x_vlcs
         self.__file = open(f'output/({time.time()}).csv', mode='a')
         self.__writer = csv.writer(self.__file, delimiter=';')
         self.__writer.writerow([
             'STEP', 'TIME', 'CAR', 
             'LEADER', 'LEADER_DISTANCE', 'DRIVING_DISTANCE', 
-            'INCOMING_MSG', 'OUTGOING_MSG', 'SIGNAL_RANGE'
+            'TCP_DUMP_MSGS', 'SIGNAL_STRENGTH'
         ])
         
     
     def _step_core(self) -> bool:
         self.__step += 1
-        for sm_car, wf_car in self.__all_cars:
-            leader_name, leader_distance = sm_car.get_leader_with_distance()
+        for v2x_vlc in self.__v2x_vlcs:
+            leader_name, leader_distance = v2x_vlc.get_leader_with_distance()
             self.__writer.writerow([
                 self.__step, 
                 f'{SumoControlThread.simulation_time()}s',
-                str(sm_car.name), 
+                str(v2x_vlc.name), 
                 leader_name if leader_name else "No leader", 
                 leader_distance if leader_distance else "No leader", 
-                sm_car.distance if sm_car.distance > 0 else "Not initialised", 
-                [str(each) for each in sm_car.message_backup['IN']], 
-                [str(each) for each in sm_car.message_backup['OUT']], 
-                str(wf_car.wintfs[0].range)
+                v2x_vlc.distance if v2x_vlc.distance > 0 else "Not initialised", 
+                str(v2x_vlc.mesh_datagram_stack), 
+                f'{v2x_vlc.wifi_intf.rssi}@{v2x_vlc.wifi_intf.name}'
             ])
-            for _, backup in sm_car.message_backup.items(): backup.clear()
+            v2x_vlc.mesh_datagram_stack.clear()
         return None
 
     def __del__(self): 
@@ -118,12 +76,12 @@ class SumoRecorder(SumoStepListener):
 
 
 def topology():
-    "Create a network."
     net = Mininet_wifi(link=wmediumd, wmediumd_mode=interference)
-
+    "Create a network."
     info("*** Creating nodes\n")
+
     for name in ['obs', 'car1', 'car2', 'car3']: 
-        net.addCar(name, wlans=1, encrypt=[''], txpower=40)
+        net.addCar(name, wlans=2, encrypt=[None, 'wpa2'])
 
     kwargs = {
         'ssid': 'vanet-ssid', 
@@ -133,25 +91,21 @@ def topology():
         'failMode': 'standalone', 
         'datapath': 'user'
     }
-
     net.addAccessPoint(
         'e1', mac='00:00:00:11:00:01', channel='1',
-        position='100,25,0', txpower=10, **kwargs
+        position='100,25,0', range=200, **kwargs
     )
-    
     info("*** Configuring Propagation Model\n")
     net.setPropagationModel(model="logDistance", exp=4.5)
 
     info("*** Configuring wifi nodes\n")
     net.configureWifiNodes()
 
-    for car in net.cars:
+    for node in net.cars[1:3]: 
         net.addLink(
-            car, intf=car.intfNames()[0], 
-            cls=mesh, ssid='meshNet', 
-            channel=5, ht_cap='HT40+', range=5
+            node, cls=Mesh, intf=node.intfNames()[0], 
+            ssid='meshNet', channel=5, ht_cap='HT40+'
         )
-
 
     info("*** Starting network\n")
     net.build()
@@ -159,35 +113,42 @@ def topology():
     for enb in net.aps:
         enb.start([])
     
-    for i, mn_car in enumerate(net.cars[1:], start=1): 
-        mn_car.setIP(ip=f'192.168.0.{i}', intf=mn_car.wintfs[0].name)
+    for i, mn_car in enumerate(net.cars[1:3], start=1): 
+        mn_car.setIP(ip=f'192.168.0.{i}', intf=mn_car.intfNames()[0])
+        mn_car.setIP(ip=f'192.168.1.{i}', intf=mn_car.intfNames()[1])
 
     # Track the position of the nodes
-    nodes = net.cars + net.aps
+    nodes = net.cars[1:3] + net.aps
 
     net.telemetry(
         nodes=nodes, data_type='position',
         min_x=-50, min_y=-75,
         max_x=250, max_y=150
     )
-    
     info("***** Telemetry Initialised\n")
     project_root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    cfg_file_path = os.path.join(project_root_path, 'sumocfg', 'map.uc1.sumocfg')
+    cfg_file_path = os.path.join(project_root_path, 'sumocfg', 'uc01' ,'map.sumocfg')
     net.useExternalProgram(
-        program=V2xSumoInvoker, config_file=cfg_file_path,
+        program=SumoInvoker, config_file=cfg_file_path,
         port=8813, clients=2, exec_order=0,
         extra_params=['--delay', '1000', '--start', 'false']
     )
+    vlcs = [
+        V2xVehicle('car1', net.cars[1]), 
+        V2xVehicle('car2', net.cars[2])
+    ]
+
+    for vlc in vlcs: 
+        vlc.wifi_intf.setRange(200)
+        vlc.mesh_intf.setRange(1)
+    
     sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER')
-    sumo_cars = [SMCar('car1'), SMCar('car2')]
-    mini_cars = [net.cars[1], net.cars[2]]
-    sumo_ctl.add(Car1Controller(sumo_cars[0], mini_cars[0]))
-    sumo_ctl.add(Car2Controller(sumo_cars[1], mini_cars[1]))
-    sumo_ctl.add(SumoRecorder(sumo_cars, mini_cars))
+    sumo_ctl.add(CarController(vlcs[0]))
+    sumo_ctl.add(CarController(vlcs[1]))
+    # sumo_ctl.add(DataCapturer(vlcs))
+    sumo_ctl.setDaemon(True)
     sumo_ctl.start()
     info("***** TraCI Initialised\n")
-
     CLI(net)
 
     info("***** CLI Initialised\n")

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2021-11-02 12:35:24 by Eclipse SUMO GUI Version 1.10.0
+<!-- generated on 2021-11-16 12:17:52 by Eclipse SUMO GUI Version 1.10.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <net-file value="/home/wifi/v2x-fall-2021/sumocfg/uc1.net.xml"/>
-        <route-files value="/home/wifi/v2x-fall-2021/sumocfg/uc1.rou.xml"/>
+        <net-file value="/home/wifi/v2x-fall-2021/sumocfg/uc01/net.xml"/>
+        <route-files value="/home/wifi/v2x-fall-2021/sumocfg/uc01/rou.xml"/>
     </input>
 
     <output>
-        <tripinfo-output value="/home/wifi/v2x-fall-2021/sumocfg/maptripinfo.uc1.out.xml"/>
+        <tripinfo-output value="/home/wifi/v2x-fall-2021/sumocfg/uc01/maptripinfo.out.xml"/>
     </output>
 
     <time>
@@ -34,7 +34,7 @@
     </traci_server>
 
     <gui_only>
-        <gui-settings-file value="/home/wifi/v2x-fall-2021/sumocfg/gui-settings.cfg"/>
+        <gui-settings-file value="/home/wifi/v2x-fall-2021/sumocfg/uc01/gui-settings.cfg"/>
         <start value="false"/>
         <delay value="1000"/>
         <tracker-interval value="0.1"/>
@@ -45,4 +45,6 @@
 
 <tripinfos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/tripinfo_file.xsd">
     <tripinfo id="car3" depart="0.00" departLane="gneE0_1" departPos="5.10" departSpeed="0.00" departDelay="0.00" arrival="15.90" arrivalLane="gneE3_1" arrivalPos="50.00" arrivalSpeed="15.04" duration="15.90" routeLength="195.20" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="2.84" rerouteNo="0" devices="tripinfo_car3" vType="car" speedFactor="1.08" vaporized=""/>
+    <tripinfo id="car1" depart="0.00" departLane="gneE0_0" departPos="1.00" departSpeed="0.00" departDelay="0.00" arrival="18.80" arrivalLane="gneE3_1" arrivalPos="50.00" arrivalSpeed="13.03" duration="18.80" routeLength="199.30" waitingTime="0.00" waitingCount="0" stopTime="1.00" timeLoss="2.46" rerouteNo="0" devices="tripinfo_car1" vType="car" speedFactor="0.94" vaporized=""/>
+    <tripinfo id="car2" depart="4.00" departLane="gneE0_0" departPos="5.10" departSpeed="0.00" departDelay="4.00" arrival="20.60" arrivalLane="gneE3_1" arrivalPos="50.00" arrivalSpeed="14.03" duration="16.60" routeLength="195.20" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="2.65" rerouteNo="0" devices="tripinfo_car2" vType="car" speedFactor="1.01" vaporized=""/>
 </tripinfos>

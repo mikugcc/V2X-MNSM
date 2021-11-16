@@ -42,22 +42,37 @@ class MnwfVehicle(object):
     def received_bcst_stack(self) -> List[str]: 
         msg_stack: List[str] = []
         self.mesh_intf.updateIP()
-        listen_ip = f'{self.mesh_intf.ip.partition(".")[0]}.255.255.255'
+        to_address = f'{self.mesh_intf.ip.partition(".")[0]}.255.255.255:{self.__port_num}'
         mesh_msg_rcver = self.__mnwf_core.popen(
-            ['udp_bcs_rcv', listen_ip, self.__port_num],
-            stdin=PIPE, stdout=PIPE, stderr=STDOUT
+            ['udp_bcs_rcv', to_address],
+            stdout=PIPE, stderr=STDOUT, text=True
         )
         async_readlines(msg_stack, mesh_msg_rcver)
         return msg_stack
+    
+    def __get_broadcaster(self, intf:IntfWireless, port_num: int) -> Popen: 
+        intf.updateIP()
+        to_addr = f'{intf.ip.partition(".")[0]}.255.255.255:{port_num}'
+        return self.__mnwf_core.popen(
+            ['udp_bcs_sdr', intf.name, to_addr], 
+            stdin=PIPE, stdout=PIPE, stderr=STDOUT, text=True
+        )
 
-    def broadcast(self, payload: str) -> None: 
-        if self.__bcster is None: 
-            self.mesh_intf.updateIP()
-            bcst_ip = f'{self.mesh_intf.ip.rpartition(".")[0]}.255.255.255'
-            self.__bcster = self.__mnwf_core.popen(
-                ['udp_bcs_sdr', bcst_ip, self.__port_num], 
-                stdin=PIPE, stdout=PIPE, stderr=STDOUT
-            )
-        encoded_package = f'{self.mesh_intf.ip}::{payload}'.encode()
-        print(encoded_package, file=self.__bcster.stdin, flush=True)
-        return None
+    @cached_property
+    def __mesh_broadcaster(self) -> Popen: 
+        return self.__get_broadcaster(self.mesh_intf, self.__port_num)
+    
+    @cached_property
+    def __wifi_broadcaster(self) -> Popen: 
+        return self.__get_broadcaster(self.wifi_intf, self.__port_num)
+
+
+    def broadcast_by_wifi(self, payload: str) -> str: 
+        self.__mesh_broadcaster.stdin.write(f'{payload}\n')
+        self.__mesh_broadcaster.stdin.flush()
+        return self.__mesh_broadcaster.stdout.readline()
+
+    def broadcast_by_mesh(self, payload: str) -> str: 
+        self.__wifi_broadcaster.stdin.write(f'{payload}\n')
+        self.__wifi_broadcaster.stdin.flush()
+        return self.__wifi_broadcaster.stdout.readline()
