@@ -1,0 +1,5 @@
+STEP;TIME;CAR;LEADER;LEADER_DISTANCE;DRIVING_DISTANCE;TCP_DUMP_MSGS;SIGNAL_STRENGTH
+1;0.1s;car1;No leader;No leader;Not initialised;[];-77.0@car1-wlan1
+1;0.1s;car2;No leader;No leader;Not initialised;[];-77.0@car2-wlan1
+2;0.2s;car1;No leader;No leader;Not initialised;[];-77.0@car1-wlan1
+2;0.2s;car2;No leader;No leader;Not initialised;[];-77.0@car2-wlan1

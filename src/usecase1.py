@@ -6,7 +6,7 @@ from mn_wifi.link import mesh as Mesh, wmediumd
 from mn_wifi.wmediumdConnector import interference
 from extension import *
 from message import *
-import os, csv, time
+import os, csv, datetime
 
 class CarController(SumoStepListener): 
     def __init__(self, v2x_vlc: V2xVehicle):
@@ -20,19 +20,6 @@ class CarController(SumoStepListener):
         return self.__v2x_vlc.lane_index
 
     def _step_core(self):
-        #HANDLE INCOMING
-        while self.__v2x_vlc.received_bcst_stack: 
-            in_package = self.__v2x_vlc.received_bcst_stack.pop()
-            print(f'RECEIVED {in_package}')
-            m_type, m_ip, m_payload = in_package.split('::')
-            if m_type == 'CAM' or m_ip == self.__v2x_vlc.wifi_intf.ip: continue
-            vlc_denm = DENM.MsgBuilder(str_cmd=m_payload)
-            if vlc_denm.behavior == DENM.Behavior.STOP:
-                self.__v2x_vlc.stop()
-            elif vlc_denm.behavior == DENM.Behavior.CHANGE_TO: 
-                self.__cur_lane = vlc_denm.parameters[0]
-            info(f'\tNAME: {self.__v2x_vlc.name}\tMSG: {m_payload}\n')
-        self.__v2x_vlc.lane_index = self.__cur_lane
         #HANDLE OUTGOING
         vlc_cam = CAM.MsgBuilder(# SEND CAM
             time=SumoControlThread.simulation_time(), 
@@ -40,22 +27,41 @@ class CarController(SumoStepListener):
             speed =self.__v2x_vlc.get_speed(), 
             leader=self.__v2x_vlc.get_leader_with_distance()[0]
         )
-        self.__v2x_vlc.broadcast_by_wifi(f'CAM::{self.__v2x_vlc.wifi_intf.ip}::{vlc_cam.serialisation}')
+        fb = self.__v2x_vlc.broadcast_by_wifi(f'CAM::{self.__v2x_vlc.wifi_intf.ip}::{vlc_cam.serialisation}')
+        print(fb)
         obs_lane_index = self.__detact_obstruction()
         if(obs_lane_index >= 0): # SEND DENM
             self.__cur_lane = obs_lane_index ^ 1 
             vlc_denm = DENM.MsgBuilder(DENM.Behavior.CHANGE_TO, [self.__cur_lane])
             self.__v2x_vlc.broadcast_by_wifi(f'DENM::{self.__v2x_vlc.wifi_intf.ip}::{vlc_denm.serialisation}')
         self.__v2x_vlc.lane_index = self.__cur_lane
+        #HANDLE INCOMING
+        while self.__v2x_vlc.wifi_packages_stack: 
+            in_package = self.__v2x_vlc.wifi_packages_stack.pop()
+            m_type, m_ip, m_payload = in_package.split('::')
+            if m_ip == self.__v2x_vlc.wifi_intf.ip: 
+                continue
+            elif m_type == 'CAM': 
+                print(f'{self.__v2x_vlc.name} received CAM {m_payload}')
+            else: 
+                print(f'{self.__v2x_vlc.name} received DENM {m_payload}')
+                vlc_denm = DENM.MsgBuilder(str_cmd=m_payload)
+                if vlc_denm.behavior == DENM.Behavior.STOP: 
+                    self.__v2x_vlc.stop()
+                elif vlc_denm.behavior == DENM.Behavior.CHANGE_TO: 
+                    self.__cur_lane = vlc_denm.parameters[0]
+        self.__v2x_vlc.lane_index = self.__cur_lane
         return None
 
 class DataCapturer(SumoStepListener): 
+
+    CUR_DATE:datetime.datetime = datetime.datetime.today()
 
     def __init__(self, v2x_vlcs: List[V2xVehicle]):
         super().__init__()
         self.__step = 0
         self.__v2x_vlcs = v2x_vlcs
-        self.__file = open(f'output/({time.time()}).csv', mode='a')
+        self.__file = open(f'output/uc1.({self.CUR_DATE.strftime("%b%d-%H%M%S")}).csv', mode='a')
         self.__writer = csv.writer(self.__file, delimiter=';')
         self.__writer.writerow([
             'STEP', 'TIME', 'CAR', 
@@ -123,10 +129,6 @@ def topology():
 
     for enb in net.aps:
         enb.start([])
-    
-    for i, mn_car in enumerate(net.cars[1:3], start=1): 
-        mn_car.setIP(ip=f'192.168.0.{i}', intf=mn_car.intfNames()[0])
-        mn_car.setIP(ip=f'192.168.1.{i}', intf=mn_car.intfNames()[1])
 
     # Track the position of the nodes
     nodes = net.cars[1:3] + net.aps
@@ -149,14 +151,20 @@ def topology():
         V2xVehicle('car2', net.cars[2])
     ]
 
-    for vlc in vlcs: 
-        vlc.wifi_intf.setRange(200)
+    for i, vlc in enumerate(vlcs, 1): 
         vlc.mesh_intf.setRange(1)
+        vlc.mesh_intf.setIP(f'192.168.0.{i}', 24)
+        vlc.mesh_intf.updateIP()
+        vlc.wifi_intf.setRange(200)
+        vlc.wifi_intf.setIP(f'192.168.1.{i}', 24)
+        vlc.wifi_intf.updateIP()
+
+        
     
     sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER')
     sumo_ctl.add(CarController(vlcs[0]))
     sumo_ctl.add(CarController(vlcs[1]))
-    #sumo_ctl.add(DataCapturer(vlcs))
+    sumo_ctl.add(DataCapturer(vlcs))
     sumo_ctl.setDaemon(True)
     sumo_ctl.start()
     info("***** TraCI Initialised\n")
