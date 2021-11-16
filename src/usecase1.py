@@ -3,6 +3,7 @@ from mininet.log import setLogLevel, info
 from mn_wifi.cli import CLI
 from mn_wifi.net import Mininet_wifi
 from mn_wifi.link import wmediumd
+from mn_wifi.node import Car
 from mn_wifi.wmediumdConnector import interference
 from extension import *
 from message import *
@@ -15,9 +16,9 @@ class Car1Controller(SumoStepListener):
         self.__cur_lane = 0
 
     def __detact_obstruction(self) -> int: 
-        leader, gap_with = self._sumo_car.get_leader_with_distance()
+        leader, gap_with = self.__v2x_vlc.get_leader_with_distance()
         if (leader != 'obs' or gap_with >= 50): return -1 
-        return self._sumo_car.lane_index
+        return self.__v2x_vlc.lane_index
 
     def _step_core(self):
         obs_lane_index = self.__detact_obstruction()
@@ -36,7 +37,8 @@ class Car2Controller(SumoStepListener):
         self.__cur_lane = 0
 
     def _step_core(self):
-        for in_msg in self.__v2x_vlc.detect_bcst_msgs(): 
+        for in_msg in self.__v2x_vlc.received_bcst_stack: 
+            print(f"IN MSG IS {in_msg}")
             vlc_denm = DENM.MsgBuilder(str_cmd=in_msg)
             if vlc_denm.behavior == DENM.Behavior.STOP:
                 self.__v2x_vlc.stop()
@@ -71,9 +73,10 @@ class DataCapturer(SumoStepListener):
                 leader_name if leader_name else "No leader", 
                 leader_distance if leader_distance else "No leader", 
                 v2x_vlc.distance if v2x_vlc.distance > 0 else "Not initialised", 
-                str(v2x_vlc.incoming_packages_found_in_last_detect), 
+                str(v2x_vlc.mesh_datagram_stack), 
                 f'{v2x_vlc.wifi_intf.rssi}@{v2x_vlc.wifi_intf.name}'
             ])
+            v2x_vlc.mesh_datagram_stack.clear()
         return None
 
     def __del__(self): 
@@ -128,7 +131,7 @@ def topology():
     
     info("***** Telemetry Initialised\n")
     project_root_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    cfg_file_path = os.path.join(project_root_path, 'sumocfg', 'map.uc1.sumocfg')
+    cfg_file_path = os.path.join(project_root_path, 'sumocfg', 'uc01' ,'map.uc1.sumocfg')
     net.useExternalProgram(
         program=SumoInvoker, config_file=cfg_file_path,
         port=8813, clients=2, exec_order=0,
@@ -141,7 +144,8 @@ def topology():
     ]
     sumo_ctl.add(Car1Controller(vlcs[0]))
     sumo_ctl.add(Car2Controller(vlcs[1]))
-    sumo_ctl.add(DataCapturer(vlcs))
+    # sumo_ctl.add(DataCapturer(vlcs))
+    sumo_ctl.setDaemon(True)
     sumo_ctl.start()
     info("***** TraCI Initialised\n")
     CLI(net)

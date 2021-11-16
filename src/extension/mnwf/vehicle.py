@@ -1,77 +1,63 @@
-from typing import List
-from subprocess import PIPE, STDOUT, Popen
 from mn_wifi.net import Car, IntfWireless
-from ...utils import lazy_property
+from functools import cached_property
+from utils import async_readlines
+from subprocess import PIPE, STDOUT, Popen
+from typing import Optional, List
 
 class MnwfVehicle(object): 
 
-    SPLITER = '::'
-
-    def __init__(self, core:Car, bcst_port:int=9090) -> None:
+    def __init__(self, core:Car, dft_port:int=9090) -> None:
         super().__init__()
         self.__mnwf_core:Car = core
-        self.__bcst_port = bcst_port
-        self.__ip: str = str(core.IP())
-        self.__bcst_ip = f'{self.__ip.rpartition(".")[0]}.255'
-        self._udp_package_stack: List[str] = []
+        self.__port_num: str = str(dft_port)
+        self.__bcster: Optional[Popen] = None
         return None
-
-    @property
-    def incoming_packages_found_in_last_detect(self) -> List[str]: 
-        return self._udp_package_stack.copy()
 
     @property
     def mesh_intf(self) -> IntfWireless: 
-        return self.__mnwf_core.wintfs[f'{self.__mnwf_core.name}-mp0']
+        return self.__mnwf_core.wintfs[0]
 
     @property
     def wifi_intf(self) -> IntfWireless: 
-        return self.__mnwf_core.wintfs[f'{self.__mnwf_core.name}-wlan1']
+        return self.__mnwf_core.wintfs[1]
 
-    @lazy_property
-    def _bcster(self) -> Popen: 
-        return self.__core.popen(
-            ['netcat', '-ub', self.__bcst_ip, self.__bcst_port], 
-            stdin=PIPE, stdout=PIPE, stderr=STDOUT
+    def __get_live_datagram_stack(self, inft_name:str) -> List[str]: 
+        data_stack:List[str] = []
+        data_rcver = self.__mnwf_core.popen(
+            ['tcpdump', '-l', '-i', inft_name, '-A'], 
+            stdout=PIPE
         )
+        async_readlines(data_stack, data_rcver)
+        return data_stack
     
-    @lazy_property
-    def _receiver(self) -> Popen: 
-        return self.__core.popen(
-            ['netcat', '-luk', self.__bcst_ip, self.__bcst_port],
-            stdin=PIPE, stdout=PIPE, stderr=STDOUT
-        )
-    
-    @lazy_property
-    def mesh_sniffer(self) -> Popen: 
-        return self.__core.popen(
-            ['tcpdump', '-l', '-i', self.mesh_intf.name, '-A'], 
-            stdin=PIPE, stdout=PIPE, stderr=STDOUT
-        )
+    @cached_property
+    def mesh_datagram_stack(self) -> List[str]:
+        return self.__get_live_datagram_stack(self.mesh_intf.name)
 
-    @lazy_property
-    def wifi_sniffer(self) -> Popen: 
-        return self.__core.popen(
-            ['tcpdump', '-l', '-i', self.wifi_intf.name, '-A'], 
+    @cached_property
+    def wifi_datagram_stack(self) -> List[str]:
+        return self.__get_live_datagram_stack(self.wifi_intf.name)        
+
+    @cached_property
+    def received_bcst_stack(self) -> List[str]: 
+        msg_stack: List[str] = []
+        self.mesh_intf.updateIP()
+        listen_ip = f'{self.mesh_intf.ip.partition(".")[0]}.255.255.255'
+        mesh_msg_rcver = self.__mnwf_core.popen(
+            ['udp_bcs_rcv', listen_ip, self.__port_num],
             stdin=PIPE, stdout=PIPE, stderr=STDOUT
         )
+        async_readlines(msg_stack, mesh_msg_rcver)
+        return msg_stack
 
-    def broadcast(self, raw_msg: str) -> None: 
-        if not raw_msg.endswith('\n'): raw_msg += '\n'
-        handled_msg = f'{self.__ip}{MnwfVehicle.SPLITER}{raw_msg}'
-        self._bcster.stdin.write(handled_msg)
+    def broadcast(self, payload: str) -> None: 
+        if self.__bcster is None: 
+            self.mesh_intf.updateIP()
+            bcst_ip = f'{self.mesh_intf.ip.rpartition(".")[0]}.255.255.255'
+            self.__bcster = self.__mnwf_core.popen(
+                ['udp_bcs_sdr', bcst_ip, self.__port_num], 
+                stdin=PIPE, stdout=PIPE, stderr=STDOUT
+            )
+        encoded_package = f'{self.mesh_intf.ip}::{payload}'.encode()
+        print(encoded_package, file=self.__bcster.stdin, flush=True)
         return None
-
-    def detect_bcst_msgs(self) -> List[str]: 
-        received_msgs: List[str] = []
-        udp_packages: List[str] = []
-        for package in self._tcpdump.stdout.readlines(): 
-            if package is None: continue
-            udp_packages.append(package)
-        self._udp_package_stack = udp_packages
-        for in_msg in self._bcster.stdout.readlines():
-            if in_msg is None: continue
-            msg_ip, _, msg_content = str(in_msg).partition(MnwfVehicle.SPLITER)
-            if msg_ip == self.__ip or msg_content is None: continue
-            received_msgs.append(msg_content)
-        return received_msgs

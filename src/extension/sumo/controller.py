@@ -16,8 +16,7 @@ class SumoControlThread(Thread):
         traci.setOrder(order)
 
     def run(self): 
-        simulation = traci.simulation
-        while simulation.getMinExpectedNumber() > 0:
+        while traci.simulation.getMinExpectedNumber() > 0:
             traci.simulationStep()
         traci.close()
     

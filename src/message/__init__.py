@@ -1,3 +1,4 @@
-import cam as CAM, denm as DENM
+from . import cam as CAM
+from . import denm as DENM
 
 all = [CAM, DENM]

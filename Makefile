@@ -1,7 +1,7 @@
 SUMO_HOME := $(shell pip show mininet_wifi | grep -Eo /usr.*)
 SUMO_DATA := ${SUMO_HOME}/mn_wifi/sumo/data
 SUMO_CFG_FILES := ${SUMO_DATA}/*.sumocfg
-ENV_PATH := $(PWD)/src/scripts:$(PATH)
+ENV_PATH := $(PWD)/scripts:$(PATH)
 
 export PATH=$(ENV_PATH)
 

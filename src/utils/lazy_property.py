@@ -1,6 +1,11 @@
+
+
+from typing import Callable
+
+
 class lazy_property(object): 
 
-    def __init__(self, func) -> None:
+    def __init__(self, func: Callable) -> None:
         self.__func = func
 
     def __get__(self, obj, obj_type=None):

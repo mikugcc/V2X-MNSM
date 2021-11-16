@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 import sys, socket
 import traceback
 
@@ -8,13 +7,13 @@ if __name__ == '__main__':
     try: 
         udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         udp.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        sent_data = ' '.join(args[2:] if args[-1] != '-v' else args[2:-1])
-        udp.sendto(sent_data.encode(), (args[0], int(args[1])))
-        if '-v' == args[-1]: print(f"{sent_data} DATA BROADCASTED")
-        else: print(1)
+        udp_addr = (args[0], int(args[1]))
+        sent_data = None
+        while sent_data != 'EXIT': 
+            sent_data = input()
+            udp.sendto(sent_data.encode(), udp_addr)
+            print(f"{sent_data} DATA BROADCASTED")
     except socket.error as e:
-        if '-v' == args[-1]: 
-            print(f"ERROR OCCURRED: {str(e)}")
-            traceback.print_exception(*sys.exc_info())
-        else: 
-            print(0)
+        print(f"ERROR OCCURRED: {str(e)}")
+        traceback.print_exception(*sys.exc_info())
+        exit(-1)
