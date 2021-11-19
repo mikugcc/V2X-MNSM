@@ -23,7 +23,7 @@ class MnwfVehicle(object):
     def __get_live_datagram_stack(self, inft_name:str) -> List[str]: 
         data_stack:List[str] = []
         data_rcver = self.__mnwf_core.popen(
-            ['tcpdump', '-n', 'udp', 'port', self.__port_num, '-l', '-i', inft_name, '-A'], 
+            ['tcpdump', '-l', '-i', inft_name, '-A'], # '-n', 'udp', 'port', self.__port_num, 
             stdout=PIPE
         )
         async_readlines(data_stack, data_rcver)
@@ -73,12 +73,13 @@ class MnwfVehicle(object):
         return self.__get_broadcaster(self.wifi_intf, self.__port_num)
 
 
-    def broadcast_by_wifi(self, payload: str) -> str: 
+    def broadcast_by_mesh(self, payload: str) -> str: 
         self.__mesh_broadcaster.stdin.write(f'{payload}\n')
         self.__mesh_broadcaster.stdin.flush()
         return self.__mesh_broadcaster.stdout.readline()
 
-    def broadcast_by_mesh(self, payload: str) -> str: 
-        self.__wifi_broadcaster.stdin.write(f'{payload}\n')
+    def broadcast_by_wifi(self, raw_msg: str) -> str: 
+        handled_msg = raw_msg.replace('\n', '') + '\n'
+        self.__wifi_broadcaster.stdin.write(handled_msg)
         self.__wifi_broadcaster.stdin.flush()
         return self.__wifi_broadcaster.stdout.readline()
