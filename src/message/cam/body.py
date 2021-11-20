@@ -1,16 +1,16 @@
 from typing import Tuple
 from random import random
 from dataclasses import asdict, dataclass
-from src.message.abs.body import Body
+from ..abs.body import Body
 
 @dataclass(frozen=True)
-class __Station_Characteristics: 
+class StationCharacteristics: 
     mobile_its_station: bool = False # ITS station which we did not implement
-    private_its_station: bool = False # we also did not implement sequenct id
-    physical_relevant_its_station: bool = False # we also did not implement sequenct id
+    private_its_station: bool = False # we also did not implement
+    physical_relevant_its_station: bool = False # we also did not implement
 
 @dataclass(frozen=True)
-class __Reference_Position: 
+class ReferencePosition: 
     lane: str # NOT IN ORIGIN DENM BUT WE ADDED IT HERE
     position: Tuple[int, int]
     elevation: int = 0
@@ -19,11 +19,12 @@ class __Reference_Position:
 class CamBody(Body): 
     def __init__(self, lane: str, leader: str, speed: int, position: Tuple[int, int]) -> None:
         super().__init__()
+        self.station_characteristics = StationCharacteristics(False, False, False)
+        self.reference_position = ReferencePosition(lane=lane, position=position)
         self.station_id = random() % 256
         self.leader = leader
         self.speed = speed
-        self.station_characteristics = __Station_Characteristics()
-        self.reference_position = __Reference_Position(lane=lane, position=position)
+
         return None
 
     def to_dict(self) -> dict: 

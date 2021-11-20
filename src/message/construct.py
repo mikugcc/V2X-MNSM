@@ -1,8 +1,8 @@
 from json import loads
-from src.message.abs.package import Package
-from src.message.cam.package import CamPackage
-from src.message.denm.package import DenmPackage
-from src.message.header import Header
+from .header import Header
+from .abs.package import Package
+from .cam.package import CamPackage
+from .denm.package import DenmPackage
 
 def json_to_package(j_str: str) -> Package: 
     j_dict = loads(j_str)

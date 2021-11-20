@@ -2,6 +2,7 @@ from mn_wifi.net import Car, IntfWireless
 from functools import cached_property
 from utils import async_readlines
 from subprocess import PIPE, STDOUT, Popen
+from queue import Queue
 from typing import List
 
 class MnwfVehicle(object): 
@@ -20,22 +21,40 @@ class MnwfVehicle(object):
     def wifi_intf(self) -> IntfWireless: 
         return self.__mnwf_core.wintfs[1]
 
-    def __get_live_datagram_stack(self, inft_name:str) -> List[str]: 
-        data_stack:List[str] = []
+    def __get_live_datagram_queue(self, inft:IntfWireless) -> Queue: 
+        data_queue:Queue[str] = Queue()
         data_rcver = self.__mnwf_core.popen(
-            ['tcpdump', '-l', '-i', inft_name, '-A'], # '-n', 'udp', 'port', self.__port_num, 
+            [
+                'tcpdump', '-l', '-A', '-i', inft.name, 
+                '-n', 'udp', 'port', self.__port_num
+            ],
             stdout=PIPE
         )
-        async_readlines(data_stack, data_rcver)
-        return data_stack
+        async_readlines(
+            into_queue=data_queue, 
+            from_popen=data_rcver
+        )
+        return data_queue
     
     @cached_property
-    def mesh_datagram_stack(self) -> List[str]:
-        return self.__get_live_datagram_stack(self.mesh_intf.name)
+    def mesh_datagram_queue(self) -> Queue:
+        '''
+        The method will return a live Queue, which stored 
+        the captured udp datagrams from the mesh interface. 
+        The term `live` means the data in the queue will 
+        update automatically when data coming.
+        '''
+        return self.__get_live_datagram_queue(self.mesh_intf)
 
     @cached_property
-    def wifi_datagram_stack(self) -> List[str]:
-        return self.__get_live_datagram_stack(self.wifi_intf.name)  
+    def wifi_datagram_queue(self) -> Queue:
+        '''
+        The method will return a live Queue, which stored 
+        the captured udp datagrams from the wifi interface. 
+        The term `live` means the data in the queue will 
+        update automatically when data coming.
+        '''
+        return self.__get_live_datagram_queue(self.wifi_intf)  
 
     def __get_receiver(self, intf:IntfWireless, port_num: int) -> Popen:
         return self.__mnwf_core.popen(
@@ -44,18 +63,36 @@ class MnwfVehicle(object):
         )
 
     @cached_property
-    def mesh_package_stack(self) -> List[str]: 
-        msg_stack: List[str] = []
+    def mesh_package_queue(self) -> Queue: 
+        '''
+        The method will return a live Queue, which stored 
+        the CAM or DENM packages from the mesh interface
+        The term `live` means the data in the queue will 
+        update automatically when data coming.
+        '''
+        msg_queue: Queue[str] = Queue()
         mesh_msg_rcvr = self.__get_receiver(self.mesh_intf, self.__port_num)
-        async_readlines(msg_stack, mesh_msg_rcvr)
-        return msg_stack
+        async_readlines(
+            into_queue=msg_queue, 
+            from_popen=mesh_msg_rcvr
+        )
+        return msg_queue
 
     @cached_property
-    def wifi_packages_stack(self) -> List[str]: 
-        msg_stack: List[str] = []
+    def wifi_packages_queue(self) -> Queue: 
+        '''
+        The method will return a live Queue, which stored 
+        the CAM or DENM packages from the wifi interface
+        The term `live` means the data in the queue will 
+        update automatically when data coming.
+        '''
+        msg_queue: Queue[str] = Queue()
         wifi_msg_rcvr = self.__get_receiver(self.wifi_intf, self.__port_num)
-        async_readlines(msg_stack, wifi_msg_rcvr)
-        return msg_stack
+        async_readlines(
+            into_queue=msg_queue, 
+            from_popen=wifi_msg_rcvr
+        )
+        return msg_queue
     
     def __get_broadcaster(self, intf:IntfWireless, port_num: int) -> Popen: 
         to_addr = f'{intf.ip.rpartition(".")[0]}.255:{port_num}'

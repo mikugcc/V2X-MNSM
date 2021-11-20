@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict, Any
 from mininet.log import setLogLevel, info
 from mn_wifi.cli import CLI
 from mn_wifi.net import Mininet_wifi
@@ -6,9 +6,10 @@ from mn_wifi.link import mesh as Mesh, wmediumd
 from mn_wifi.wmediumdConnector import interference
 from message import *
 from extension import *
-import os, csv, datetime
+import os
 
 class CarController(SumoStepListener): 
+
     def __init__(self, v2x_vlc: V2xVehicle):
         super().__init__()
         self.__v2x_vlc = v2x_vlc
@@ -19,81 +20,53 @@ class CarController(SumoStepListener):
         if (leader != 'obs' or gap_with >= 50): return -1 
         return self.__v2x_vlc.lane_index
 
-    def _step_core(self):
-        v2x_vlc = self.__v2x_vlc
-        #HANDLE OUTGOING
-        vlc_cam = CAM( # SEND CAM
-            car_id = v2x_vlc.name, 
-            lane = v2x_vlc.lane_index, 
-            leader = v2x_vlc.get_leader_with_distance()[0], 
-            speed = v2x_vlc.get_speed(), 
-            position = v2x_vlc.position
+    def before_listening(self):
+        return super().before_listening()
+
+    @SumoStepListener.SUBSTEP(priority=10)
+    def __send_cam(self) -> None: 
+        vlc_cam = CAM(
+            car_id = self.__v2x_vlc.name, 
+            lane = self.__v2x_vlc.lane_index, 
+            leader = self.__v2x_vlc.get_leader_with_distance()[0], 
+            speed = self.__v2x_vlc.get_speed(), 
+            position = self.__v2x_vlc.position
         )
-        v2x_vlc.broadcast_by_wifi(vlc_cam.to_json())
+        self.__v2x_vlc.broadcast_by_wifi(vlc_cam.to_json())
+        return None
+    
+    @SumoStepListener.SUBSTEP(priority=10)
+    def __send_denm(self) -> None: 
         obs_lane_index = self.__detact_obstruction()
-        if(obs_lane_index >= 0): # SEND DENM
+        if obs_lane_index >= 0:
             self.__cur_lane = obs_lane_index ^ 1 
             vlc_denm = DENM(
-                v2x_vlc.name, 
+                self.__v2x_vlc.name, 
                 OBSTACLE, 
-                self.__cur_lane, 
-                v2x_vlc.position
+                obs_lane_index, 
+                self.__v2x_vlc.position
             )
-            v2x_vlc.broadcast_by_wifi(vlc_denm.to_json())
-        v2x_vlc.lane_index = self.__cur_lane
-        #HANDLE INCOMING
-        while v2x_vlc.wifi_packages_stack: 
-            data_package_str = v2x_vlc.wifi_packages_stack.pop()
-            package = json_to_package(data_package_str)
-            if package.header.from_car_id == v2x_vlc.name: 
-                continue
-            elif package.header.proto_type == 'CAM': 
-                print('RECEIVE A DENM')
-            elif package.header.proto_type == 'DENM': 
-                vlc_denm: DENM = package
-                if vlc_denm.body.situation.cause == OBSTACLE: 
-                    self.__cur_lane = vlc_denm.body.location.lane ^ 1
-                print(package)
+            self.__v2x_vlc.broadcast_by_wifi(vlc_denm.to_json())
         self.__v2x_vlc.lane_index = self.__cur_lane
         return None
 
-class DataCapturer(SumoStepListener): 
-
-    CUR_DATE:datetime.datetime = datetime.datetime.today()
-
-    def __init__(self, v2x_vlcs: List[V2xVehicle]):
-        super().__init__()
-        self.__step = 0
-        self.__v2x_vlcs = v2x_vlcs
-        self.__file = open(f'output/uc1.({self.CUR_DATE.strftime("%b%d-%H%M%S")}).csv', mode='a')
-        self.__writer = csv.writer(self.__file, delimiter=';')
-        self.__writer.writerow([
-            'STEP', 'TIME', 'CAR', 
-            'LEADER', 'LEADER_DISTANCE', 'DRIVING_DISTANCE', 
-            'TCP_DUMP_MSGS', 'SIGNAL_STRENGTH'
-        ])
-        
-    
-    def _step_core(self) -> bool:
-        self.__step += 1
-        for v2x_vlc in self.__v2x_vlcs:
-            leader_name, leader_distance = v2x_vlc.get_leader_with_distance()
-            self.__writer.writerow([
-                self.__step, 
-                f'{SumoControlThread.simulation_time()}s',
-                str(v2x_vlc.name), 
-                leader_name if leader_name else "No leader", 
-                leader_distance if leader_distance else "No leader", 
-                v2x_vlc.distance if v2x_vlc.distance > 0 else "Not initialised", 
-                str(v2x_vlc.wifi_datagram_stack), 
-                f'{v2x_vlc.wifi_intf.rssi}@{v2x_vlc.wifi_intf.name}'
-            ])
-            v2x_vlc.wifi_datagram_stack.clear()
+    @SumoStepListener.SUBSTEP(priority=5)
+    def __handle_in_msg(self) -> None:
+        while not self.__v2x_vlc.wifi_packages_queue.empty(): 
+            data_package_str = self.__v2x_vlc.wifi_packages_queue.get()
+            package = json_to_package(data_package_str)
+            if package.header.from_car_id == self.__v2x_vlc.name: continue
+            if package.header.proto_type != 'DENM': continue
+            vlc_denm: DENM = package
+            if vlc_denm.body.situation.cause == OBSTACLE: 
+                self.__cur_lane = vlc_denm.body.location.lane ^ 1
+        self.__v2x_vlc.lane_index = self.__cur_lane
         return None
 
-    def __del__(self): 
-        self.__file.close()
-        super().__del__()
+    @SumoStepListener.SUBSTEP(priority=1)
+    def __record_data(self) -> None: 
+        
+        return None
 
 
 def topology():
@@ -168,8 +141,7 @@ def topology():
     sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER')
     sumo_ctl.add(CarController(vlcs[0]))
     sumo_ctl.add(CarController(vlcs[1]))
-    sumo_ctl.add(DataCapturer(vlcs))
-    # sumo_ctl.setDaemon(True)
+    sumo_ctl.setDaemon(True)
     sumo_ctl.start()
     info("***** TraCI Initialised\n")
     CLI(net)

@@ -1,11 +1,10 @@
-from abc import ABCMeta, abstractclassmethod, abstractmethod, abstractproperty
 from __future__ import annotations
 from typing import Dict
-from src.message.abs.body import Body
+from abc import ABCMeta, abstractclassmethod, abstractmethod, abstractproperty
+from .body import Body
+from ..header import Header
 
-from src.message.header import Header
-
-class Package(ABCMeta): 
+class Package(metaclass=ABCMeta): 
 
     @abstractproperty
     def header(self) -> Header: pass

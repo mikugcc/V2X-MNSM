@@ -1,5 +1,4 @@
-from typing import Dict, List
-from mininet.log import info
+from typing import List
 from mn_wifi.node import Car
 from mn_wifi.sumo.sumolib.sumolib import checkBinary
 from mn_wifi.sumo.traci import main as traci, _vehicle

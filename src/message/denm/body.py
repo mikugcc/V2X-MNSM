@@ -1,10 +1,8 @@
 from typing import Tuple
-from random import random
 from dataclasses import asdict, dataclass
-import json
 
 @dataclass(frozen=True)
-class __Management: 
+class Management: 
     station_id: int = 0 # ITS station which we did not implement
     sequence_id: int = 0 # we also did not implement sequenct id
     data_version: int = 0 # [0,255]
@@ -14,13 +12,13 @@ class __Management:
     is_negation: bool = False
 
 @dataclass(frozen=True)
-class __DecentralizedSituation: 
+class DecentralizedSituation: 
     cause: int # [0, 2^{6}-1]
     subcause: int # [0, 2^{6}-1]
     severity: int = 2 # (1,2,3,4)
 
 @dataclass(frozen=True)
-class __Location: 
+class Location: 
     lane: int # NOT IN ORIGIN DENM BUT WE ADDED IT HERE
     position: Tuple[int, int]
     elevation: int = 0
@@ -30,9 +28,9 @@ class __Location:
 class DenmBody(object): 
     def __init__(self, event: int, lane: str, position: Tuple[int, int]) -> None:
         super().__init__()
-        self.management = __Management(sequence_id=random()%256)
-        self.situation = __DecentralizedSituation(cause=event, subcause=0)
-        self.location = __Location(lane, position)
+        self.management = Management()
+        self.situation = DecentralizedSituation(cause=event, subcause=0)
+        self.location = Location(lane, position)
 
     def to_dict(self) -> dict: 
         return {
@@ -48,6 +46,5 @@ class DenmBody(object):
             lane=j_dict['location']['lane'], 
             position=j_dict['location']['position']
         )
-        dsq_body.management.sequence_id=j_dict['management']['sequence_id']
         return dsq_body
 

@@ -64,10 +64,10 @@ class DataCapturer(SumoStepListener):
                 leader_name if leader_name else "No leader", 
                 leader_distance if leader_distance else "No leader", 
                 v2x_vlc.distance if v2x_vlc.distance > 0 else "Not initialised", 
-                str(v2x_vlc.mesh_datagram_stack), 
+                str(v2x_vlc.mesh_datagram_queue), 
                 f'{v2x_vlc.wifi_intf.rssi}@{v2x_vlc.wifi_intf.name}'
             ])
-            v2x_vlc.mesh_datagram_stack.clear()
+            v2x_vlc.mesh_datagram_queue.clear()
         return None
 
     def __del__(self): 

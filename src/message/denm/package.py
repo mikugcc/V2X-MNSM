@@ -1,17 +1,29 @@
 import json
+from datetime import datetime
 from typing import Dict, Optional, Tuple
-from src.message.header import Header
-from src.message.denm.body import DenmBody
-from src.message.abs.package import Package
+from ..header import Header
+from .body import DenmBody
+from ..abs.package import Package
 
 OBSTACLE = 0
 
 class DenmPackage(Package): 
 
-    def __init__(self, car_id: str, event: int, lane: str, position: Tuple[int, int]) -> None:
-        self.header: Optional[Header] = Header(car_id, 'DENM') if car_id is not None else None
-        self.body: Optional[DenmBody] = DenmBody(event, lane, position) if event is not None else None
+    def __init__(
+        self, car_id: str, event: int, lane: str, position: Tuple[int, int],
+        timestamp:int=datetime.now().timestamp()
+    ) -> None:
+        self.__header: Optional[Header] = Header(car_id, 'DENM', generated_time=timestamp) if car_id is not None else None
+        self.__body: Optional[DenmBody] = DenmBody(event, lane, position) if event is not None else None
         return None 
+
+    @property
+    def header(self) -> Header: 
+        return self.__header
+
+    @property
+    def body(self) -> DenmBody: 
+        return self.__body
     
     def to_json(self) -> str: 
         return json.dumps({
@@ -25,25 +37,25 @@ class DenmPackage(Package):
     @classmethod
     def from_dict(cls, j_dict: Dict):
         out = cls(None, None, None, None)
-        out.header = Header.from_dict(j_dict['header'])
-        out.body = DenmBody.from_dict(j_dict['body'])
+        out.__header = Header.from_dict(j_dict['header'])
+        out.__body = DenmBody.from_dict(j_dict['body'])
         return out
 
     def __str__(self):
+        newline,newindent = '\n', '\t'
         header_dict = self.header.to_dict()
         body_dict = self.body.to_dict()
-        return \
-f'''
+        return f"""
 ----------------------START HEADER----------------------
-{'\n'.join(f'{key}:\t{value}' for key, value in header_dict.items())}
+{newline.join([f'{key}:{newindent*2}{value}' for key, value in header_dict.items()])}
 -----------------------END HEADER-----------------------
 
 -----------------------START BODY-----------------------
 ********************* MANAGEMENET *********************
-{'\n'.join(f'{key}:\t{value}' for key, value in body_dict['management'].items())}
+{newline.join([f'{key}:{newindent*2}{value}' for key, value in body_dict['management'].items()])}
 ********************** SITUATION **********************
-{'\n'.join(f'{key}:\t{value}' for key, value in body_dict['situation'].items())}
+{newline.join([f'{key}:{newindent*2}{value}' for key, value in body_dict['situation'].items()])}
 *********************** LOCATION **********************
-{'\n'.join(f'{key}:\t{value}' for key, value in body_dict['location'].items())}
+{newline.join([f'{key}:{newindent*2}{value}' for key, value in body_dict['location'].items()])}
 ------------------------END BODY------------------------
-'''
+"""

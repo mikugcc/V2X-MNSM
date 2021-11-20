@@ -1,7 +1,7 @@
-from abc import ABCMeta, abstractclassmethod, abstractmethod
 from __future__ import annotations
+from abc import ABCMeta, abstractclassmethod, abstractmethod
 
-class Body(ABCMeta): 
+class Body(metaclass=ABCMeta): 
 
     @abstractmethod
     def to_dict(self) -> dict: 
