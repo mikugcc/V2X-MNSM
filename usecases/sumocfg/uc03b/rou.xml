@@ -7,8 +7,8 @@
     </vType>
 
 
-    <route edges="gneE0 gneE3" id="route0"/>
-    <route edges="gneE4 gneE2" id="route1"/>
+    <route edges="gneE0 gneE8" id="route0"/>
+    <route edges="gneE2 gneE6" id="route1"/>
     <vehicle id="car1" type="car" depart="0.00" route="route0" departLane="0" arrivalLane = "0"  color="yellow" />
     <vehicle id="car2" type="car" depart="0.00" route="route1" departLane="0" arrivalLane = "0"  color="yellow" />
 

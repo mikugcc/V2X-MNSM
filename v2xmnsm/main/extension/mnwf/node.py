@@ -1,17 +1,18 @@
 from functools import cached_property
 from queue import Queue
 from subprocess import PIPE, STDOUT, Popen
+from mn_wifi.node import Node_wifi
+from mn_wifi.net import IntfWireless
 
-from mn_wifi.net import Car, IntfWireless
 
 from ...message.abs.package import Package
 from ...utils import async_readlines, exec
 
-class MnwfVehicle(object): 
+class MnwfNode(object): 
 
-    def __init__(self, core:Car, dft_port:int=9090) -> None:
+    def __init__(self, core:Node_wifi, dft_port:int=9090) -> None:
         super().__init__()
-        self.__mnwf_core:Car = core
+        self.__mnwf_core:Node_wifi = core
         self.__port_num: str = str(dft_port)
         return None
 

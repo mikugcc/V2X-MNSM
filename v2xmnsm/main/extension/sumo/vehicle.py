@@ -9,7 +9,6 @@ class SumoVehicle(object):
         self.__sumo_id = sumo_v_id
         self.__duration = 0
         self.__speed_bak = 0
-        self.__message_backup = {'IN': [],'OUT':[], 'TCPDUMP': []}
 
     @property
     def position(self) -> Tuple: 
@@ -27,10 +26,6 @@ class SumoVehicle(object):
     @property
     def name(self) -> int: 
         return self.__sumo_id
-
-    @property
-    def message_backup(self) -> Dict[str, List]: 
-        return self.__message_backup
 
     '''
     The is a bug for the traci.vehicle.getLeader method,

@@ -1,7 +1,8 @@
 import csv, re, os
+from typing import Dict, List
 from datetime import datetime
-from typing import Dict
-from v2xmnsm import SumoStepListener, V2xVehicle
+from ..extension import V2xVehicle
+from ..extension.sumo.controller import SumoStepListener
 
 class DataRecorder(SumoStepListener): 
 
@@ -33,7 +34,7 @@ class DataRecorder(SumoStepListener):
                 'CAR', 'STEP', 'TIME', 
                 'LEADER_AND_DISTANCE', 'DRIVING_DISTANCE', 
                 'WIFI_SIGNAL_STRENGTH', 'MESH_SIGNAL_STRENGTH', 
-                'DATAGRAM_COUNT','WIFI_DATAGRAM', 'MESH_DATAGRAM'
+                'DATAGRAM_COUNT', 'BYTES_COUNT', 'WIFI_DATAGRAM', 'MESH_DATAGRAM'
             ])
         self.__writer.writeheader()
         return super().before_listening()
@@ -48,6 +49,7 @@ class DataRecorder(SumoStepListener):
             'DRIVING_DISTANCE': self.__v2x_vlc.distance if self.__v2x_vlc.distance>0 else 'None', 
             'WIFI_SIGNAL_STRENGTH': self.__v2x_vlc.wifi_intf.rssi, 
             'DATAGRAM_COUNT': 0,
+            'BYTES_COUNT': 0, 
             'WIFI_DATAGRAM': [],
             'MESH_DATAGRAM': []
         }
@@ -67,14 +69,18 @@ class DataRecorder(SumoStepListener):
                 pre, cur = cur, queue.get_nowait()
                 rgx_search = re.search('"generated_time": (.+?)}', str(cur))
                 if not rgx_search: continue 
-                datagram = str(pre + cur).replace('\n', '').replace('"', "'")
+                datagram = pre + cur
                 generated_time = float(rgx_search.group(1))
                 if generated_time > new_msg_time: new_msg_time = generated_time
                 if generated_time not in self.__vlc_records: 
-                    vlc_record = {name: [], 'DATAGRAM_COUNT': 0}
-                    self.__vlc_records[generated_time] = vlc_record
-                self.__vlc_records[generated_time][name].append(datagram)
-                self.__vlc_records[generated_time]['DATAGRAM_COUNT'] += 1
+                    self.__vlc_records[generated_time] = {name: [], 'DATAGRAM_COUNT': 0, 'BYTES_COUNT': 0}
+                vlc_record = self.__vlc_records[generated_time]
+                package_str = str(datagram).replace('\n', '').replace('"', "'")
+                bytes_count = re.search('length (\d+)', package_str).group(1)
+                vlc_record[name].append(package_str)
+                vlc_record['DATAGRAM_COUNT'] += 1
+                vlc_record['BYTES_COUNT'] += int(bytes_count)
+
         ensured_times = [key for key in self.__vlc_records.keys() if key < new_msg_time - 1]
         self.__writer.writerows([self.__vlc_records.pop(time) for time in ensured_times])
 
