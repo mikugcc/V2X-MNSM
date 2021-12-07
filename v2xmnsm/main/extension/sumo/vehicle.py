@@ -1,31 +1,46 @@
 import traci
-from typing import Dict, Tuple, List
+from typing import Tuple
 
 class SumoVehicle(object): 
 
     def __init__(self, sumo_v_id: str):
-        self.__traci = traci
-        self.__sumo_vlc = self.__traci.vehicle
-        self.__sumo_id = sumo_v_id
+        self.__vlc = traci.vehicle
+        self.__id = sumo_v_id
         self.__duration = 0
-        self.__speed_bak = 0
 
     @property
     def position(self) -> Tuple: 
-        x,y = self.__sumo_vlc.getPosition(self.__sumo_id)
+        x,y = self.__vlc.getPosition(self.__id)
         return (x, y, 0)
     
     @property
-    def lane_index(self) -> int: 
-        return self.__sumo_vlc.getLaneIndex(self.__sumo_id) 
+    def lane(self) -> int: 
+        return self.__vlc.getLaneIndex(self.__id) 
+    
+    @lane.setter
+    def lane(self, value: int) -> None: 
+        if self.__duration == 0: self.__duration = int(traci.simulation.getTime()) + 1
+        return self.__vlc.changeLane(self.__id, value, self.__duration)
+
+    @property
+    def speed(self) -> int:
+        return self.__vlc.getSpeed(self.__id)
+    
+    @speed.setter
+    def speed(self, ex_sp)-> None: 
+        self.__vlc.setSpeed(self.__id, ex_sp)
 
     @property
     def distance(self) -> int: 
-        return self.__sumo_vlc.getDistance(self.__sumo_id) 
+        return self.__vlc.getDistance(self.__id) 
+
+    @property
+    def heading(self) -> str:
+        return self.__vlc.getAngle(self.__id)
     
     @property
     def name(self) -> int: 
-        return self.__sumo_id
+        return self.__id
 
     '''
     The is a bug for the traci.vehicle.getLeader method,
@@ -33,31 +48,7 @@ class SumoVehicle(object):
     SUMO default lane changing behaviour. 
     '''
     def get_leader_with_distance(self) -> Tuple[str, float]: 
-        out = self.__sumo_vlc.getLeader(self.__sumo_id)
+        out = self.__vlc.getLeader(self.__id)
         return out if out is not None else (None, None)
 
-    def get_speed(self) -> int:
-        return self.__sumo_vlc.getSpeed(self.__sumo_id)
     
-    def stop(self) -> None: 
-        cur_speed = self.__sumo_vlc.getSpeed(self.__sumo_id)
-        if cur_speed == 0: return 
-        self.__speed_bak = cur_speed
-        self.__sumo_vlc.setSpeed(self.__sumo_id, 0)
-    
-    def restart(self)-> None: 
-        if self.__speed_bak == 0: return
-        self.__sumo_vlc.setSpeed(self.__sumo_id, self.__speed_bak)
-
-    def speed(self, ex_sp)-> None: 
-        self.__sumo_vlc.setSpeed(self.__sumo_id, ex_sp)
-
-    @lane_index.setter
-    def lane_index(self, value: int) -> None: 
-        if self.__duration == 0: self.__duration = int(self.__traci.simulation.getTime()) + 1
-        return self.__sumo_vlc.changeLane(self.__sumo_id, value, self.__duration)
-
-
-
-        
-

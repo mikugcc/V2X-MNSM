@@ -27,13 +27,13 @@ class UC03aVehicle(SumoStepListener):
     def name(self) -> str: 
         return f'{self.__class__.name} :: {self.__v2x_vlc.name}'
     
-    @SumoStepListener.SUBSTEP(priority=9)
+    @SumoStepListener.Substeps(priority=9)
     def __sendCAM(self) -> None:
         vlc_cam = CAM(
             car_id = self.__v2x_vlc.name, 
-            lane = self.__v2x_vlc.lane_index, 
+            lane = self.__v2x_vlc.lane, 
             leader = self.__v2x_vlc.get_leader_with_distance()[0], 
-            speed = self.__v2x_vlc.get_speed(), 
+            speed = self.__v2x_vlc.speed(), 
             position = self.__v2x_vlc.position, 
             timestamp = self.cur_time
         )
@@ -49,7 +49,7 @@ class UC03aTfcLight(SumoStepListener):
     def name(self) -> str: 
         return f'{self.__class__.name} :: {self.__v2x_tfl.tfl_id}'
 
-    @SumoStepListener.SUBSTEP(10)
+    @SumoStepListener.Substeps(10)
     def __handle_incoming(self):
         mps_queue = self.__v2x_tfl.mesh_packages
         for _ in range(mps_queue.qsize()): 
@@ -61,7 +61,7 @@ class UC03aTfcLight(SumoStepListener):
                 self.__v2x_tfl.state = 'BEFORE_HORIZONTAL_PASS'
         return None
 
-    @SumoStepListener.SUBSTEP(9)
+    @SumoStepListener.Substeps(9)
     def __stop_all(self): 
         if self.__v2x_tfl.state != 'ALL_STOP': return None
         denm = DENM(

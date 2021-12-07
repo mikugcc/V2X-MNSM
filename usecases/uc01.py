@@ -22,7 +22,7 @@ class UC01CarController(SumoStepListener):
     def name(self) -> str:
         return f'{self.__class__.__name__}::{self.__v2x_vlc.name}'
     
-    @SumoStepListener.SUBSTEP(priority=9)
+    @SumoStepListener.Substeps(priority=9)
     def __detact_obstruction(self) -> None:
         cur_dis = self.__v2x_vlc.distance
         if 75 <= cur_dis <= 125: 
@@ -36,7 +36,7 @@ class UC01CarController(SumoStepListener):
             self.__v2x_vlc.broadcast_by_wifi(vlc_denm)
         return None
     
-    @SumoStepListener.SUBSTEP(priority=8)
+    @SumoStepListener.Substeps(priority=8)
     def __handle_in_denm(self) -> None:
         for _ in range(self.__v2x_vlc.wifi_packages.qsize()): 
             package_str = self.__v2x_vlc.wifi_packages.get_nowait()
@@ -48,7 +48,7 @@ class UC01CarController(SumoStepListener):
             self.__package_cache.add(pkg_unique_id)
             print(package)
             self.__cur_lane = package.body.location.lane ^ 1
-        self.__v2x_vlc.lane_index = self.__cur_lane
+        self.__v2x_vlc.lane = self.__cur_lane
         return None
 
 def topology():

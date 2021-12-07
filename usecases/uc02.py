@@ -21,19 +21,19 @@ class UC02CarController(SumoStepListener):
     def name(self) -> str:
         return f'{self.__class__.__name__}::{self.__v2x_vlc.name}'
         
-    @SumoStepListener.SUBSTEP(priority=9)
+    @SumoStepListener.Substeps(priority=9)
     def __sendCAM(self) -> None:
         vlc_cam = CAM(
             car_id = self.__v2x_vlc.name, 
-            lane = self.__v2x_vlc.lane_index, 
+            lane = self.__v2x_vlc.lane, 
             leader = self.__v2x_vlc.get_leader_with_distance()[0], 
-            speed = self.__v2x_vlc.get_speed(), 
+            speed = self.__v2x_vlc.speed, 
             position = self.__v2x_vlc.position, 
             timestamp = self.cur_time
         )
         self.__v2x_vlc.broadcast_by_mesh(vlc_cam)
 
-    @SumoStepListener.SUBSTEP(priority=8)
+    @SumoStepListener.Substeps(priority=8)
     def __handle_in_cam(self) -> None:
         leader_car, dis_with_leader = self.__v2x_vlc.get_leader_with_distance()
         for _ in range(self.__v2x_vlc.mesh_packages.qsize()): 
@@ -45,10 +45,10 @@ class UC02CarController(SumoStepListener):
             print(package)
         return None
     
-    @SumoStepListener.SUBSTEP(priority=1)
+    @SumoStepListener.Substeps(priority=1)
     def __update_state(self) -> None:
-        self.__v2x_vlc.lane_index = self.__cur_lane
-        self.__v2x_vlc.speed(self.__cur_speed)
+        self.__v2x_vlc.lane = self.__cur_lane
+        self.__v2x_vlc.speed = self.__cur_speed
         return None
 
 def topology():

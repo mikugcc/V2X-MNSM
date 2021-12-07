@@ -12,7 +12,7 @@ from traci.exceptions import TraCIException
 class SumoStepListener(traci.StepListener, metaclass=ABCMeta):
     
     @classmethod
-    def SUBSTEP(cls, priority: int=0):
+    def Substeps(cls, priority: int=0):
         def __inner(task): 
             def __wrapper(*args,**kwargs): 
                 return task(*args,**kwargs)

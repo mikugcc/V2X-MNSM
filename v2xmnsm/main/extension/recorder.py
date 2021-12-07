@@ -39,7 +39,7 @@ class DataRecorder(SumoStepListener):
         self.__writer.writeheader()
         return super().before_listening()
 
-    @SumoStepListener.SUBSTEP(priority=9)
+    @SumoStepListener.Substeps(priority=9)
     def __cache_data(self) -> None: 
         self.__vlc_records[self.cur_time] = {
             'STEP': self.cur_step , 
@@ -56,7 +56,7 @@ class DataRecorder(SumoStepListener):
         return None
 
 
-    @SumoStepListener.SUBSTEP(priority=8)
+    @SumoStepListener.Substeps(priority=8)
     def __write_data(self) -> None: 
         datagrams_queues = {
             'WIFI_DATAGRAM': self.__v2x_vlc.wifi_datagrams, 

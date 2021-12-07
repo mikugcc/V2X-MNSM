@@ -21,9 +21,9 @@ class UC04Car1Controller(SumoStepListener):
     def name(self) -> str:
         return f'{self.__class__.__name__}::{self.__v2x_vlc.name}'
     
-    @SumoStepListener.SUBSTEP(priority=9)
+    @SumoStepListener.Substeps(priority=9)
     def __detact_obstruction(self) -> None:
-        if self.__v2x_vlc.get_speed() == 0: return None
+        if self.__v2x_vlc.speed() == 0: return None
         if self.__v2x_vlc.distance < 70: return None
         vlc_denm = DENM(
             car_id = self.__v2x_vlc.name, 
@@ -35,7 +35,7 @@ class UC04Car1Controller(SumoStepListener):
         self.__v2x_vlc.broadcast_by_wifi(vlc_denm)
         return None
     
-    @SumoStepListener.SUBSTEP(priority=8)
+    @SumoStepListener.Substeps(priority=8)
     def __handle_in_denm(self) -> None:
         for _ in range(self.__v2x_vlc.wifi_packages.qsize()): 
             package_str = self.__v2x_vlc.wifi_packages.get_nowait()
@@ -43,9 +43,9 @@ class UC04Car1Controller(SumoStepListener):
             if package.body.situation.cause != OBSTACLE: continue
             from_car_id = package.header.from_car_id
             if from_car_id != self.__v2x_vlc.name: continue 
-            self.__v2x_vlc.stop()
+            self.__v2x_vlc.speed = 0
             print(f'{self.__v2x_vlc.name} stops')
-        self.__v2x_vlc.lane_index = self.__cur_lane
+        self.__v2x_vlc.lane = self.__cur_lane
         return None
     
 class UC04Car2Controller(SumoStepListener): 
@@ -59,7 +59,7 @@ class UC04Car2Controller(SumoStepListener):
     def name(self) -> str:
         return f'{self.__class__.__name__}::{self.__v2x_vlc.name}'
     
-    @SumoStepListener.SUBSTEP(priority=8)
+    @SumoStepListener.Substeps(priority=8)
     def __handle_in_denm(self) -> None:
         for _ in range(self.__v2x_vlc.wifi_packages.qsize()): 
             package_str = self.__v2x_vlc.wifi_packages.get_nowait()
@@ -67,7 +67,7 @@ class UC04Car2Controller(SumoStepListener):
             if package.body.situation.cause != OBSTACLE: continue
             self.__cur_lane = package.body.location.lane ^ 1
             print(f'{self.__v2x_vlc.name} changes lane to {self.__cur_lane}')
-        self.__v2x_vlc.lane_index = self.__cur_lane
+        self.__v2x_vlc.lane = self.__cur_lane
         return None
 
 class UC04Car3Controller(SumoStepListener): 
@@ -81,16 +81,16 @@ class UC04Car3Controller(SumoStepListener):
     def name(self) -> str:
         return f'{self.__class__.__name__}::{self.__v2x_vlc.name}'
     
-    @SumoStepListener.SUBSTEP(priority=8)
+    @SumoStepListener.Substeps(priority=8)
     def __handle_in_denm(self) -> None:
         for _ in range(self.__v2x_vlc.wifi_packages.qsize()): 
             package_str = self.__v2x_vlc.wifi_packages.get_nowait()
             package: DENM = json_to_package(package_str)
             if package.body.situation.cause != OBSTACLE: continue
-            cur_speed = self.__v2x_vlc.get_speed()
+            cur_speed = self.__v2x_vlc.speed()
             self.__v2x_vlc.speed(cur_speed*2)
             print(f'{self.__v2x_vlc.name} speeds up')
-        self.__v2x_vlc.lane_index = self.__cur_lane
+        self.__v2x_vlc.lane = self.__cur_lane
         return None
     
 def topology():
