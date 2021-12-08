@@ -8,7 +8,9 @@ from mn_wifi.link import wmediumd
 from mn_wifi.net import Mininet_wifi
 from mn_wifi.wmediumdConnector import interference
 
-from v2xmnsm import *
+from v2xmnsm.sumo import SumoStepListener, SumoInvoker, SumoControlThread
+from v2xmnsm.msgs import DENM, OBSTACLE, json_to_package
+from v2xmnsm import V2xVehicle
 
 class UC04Car1Controller(SumoStepListener): 
 
@@ -23,7 +25,7 @@ class UC04Car1Controller(SumoStepListener):
     
     @SumoStepListener.Substeps(priority=9)
     def __detact_obstruction(self) -> None:
-        if self.__v2x_vlc.speed() == 0: return None
+        if self.__v2x_vlc.speed == 0: return None
         if self.__v2x_vlc.distance < 70: return None
         vlc_denm = DENM(
             car_id = self.__v2x_vlc.name, 
@@ -32,13 +34,13 @@ class UC04Car1Controller(SumoStepListener):
             position = self.__v2x_vlc.position, 
             timestamp = self.cur_time
         )
-        self.__v2x_vlc.broadcast_by_wifi(vlc_denm)
+        self.__v2x_vlc.broadcast_by_mesh(vlc_denm.to_json())
         return None
     
     @SumoStepListener.Substeps(priority=8)
     def __handle_in_denm(self) -> None:
-        for _ in range(self.__v2x_vlc.wifi_packages.qsize()): 
-            package_str = self.__v2x_vlc.wifi_packages.get_nowait()
+        for _ in range(self.__v2x_vlc.mesh_packages.qsize()): 
+            package_str = self.__v2x_vlc.mesh_packages.get_nowait()
             package: DENM = json_to_package(package_str)
             if package.body.situation.cause != OBSTACLE: continue
             from_car_id = package.header.from_car_id
@@ -61,8 +63,8 @@ class UC04Car2Controller(SumoStepListener):
     
     @SumoStepListener.Substeps(priority=8)
     def __handle_in_denm(self) -> None:
-        for _ in range(self.__v2x_vlc.wifi_packages.qsize()): 
-            package_str = self.__v2x_vlc.wifi_packages.get_nowait()
+        for _ in range(self.__v2x_vlc.mesh_packages.qsize()): 
+            package_str = self.__v2x_vlc.mesh_packages.get_nowait()
             package: DENM = json_to_package(package_str)
             if package.body.situation.cause != OBSTACLE: continue
             self.__cur_lane = package.body.location.lane ^ 1
@@ -83,12 +85,11 @@ class UC04Car3Controller(SumoStepListener):
     
     @SumoStepListener.Substeps(priority=8)
     def __handle_in_denm(self) -> None:
-        for _ in range(self.__v2x_vlc.wifi_packages.qsize()): 
-            package_str = self.__v2x_vlc.wifi_packages.get_nowait()
+        for _ in range(self.__v2x_vlc.mesh_packages.qsize()): 
+            package_str = self.__v2x_vlc.mesh_packages.get_nowait()
             package: DENM = json_to_package(package_str)
             if package.body.situation.cause != OBSTACLE: continue
-            cur_speed = self.__v2x_vlc.speed()
-            self.__v2x_vlc.speed(cur_speed*2)
+            self.__v2x_vlc.speed *= 2
             print(f'{self.__v2x_vlc.name} speeds up')
         self.__v2x_vlc.lane = self.__cur_lane
         return None

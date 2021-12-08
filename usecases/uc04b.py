@@ -8,7 +8,9 @@ from mn_wifi.link import wmediumd
 from mn_wifi.net import Mininet_wifi
 from mn_wifi.wmediumdConnector import interference
 
-from v2xmnsm import *
+from v2xmnsm.sumo import SumoStepListener, SumoInvoker, SumoControlThread
+from v2xmnsm.msgs import DENM, OBSTACLE, json_to_package
+from v2xmnsm import V2xVehicle
 
 class UC04Car1Controller(SumoStepListener): 
 
@@ -23,7 +25,7 @@ class UC04Car1Controller(SumoStepListener):
     
     @SumoStepListener.Substeps(priority=9)
     def __detact_obstruction(self) -> None:
-        if self.__v2x_vlc.speed() == 0: return None
+        if self.__v2x_vlc.speed == 0: return None
         if self.__v2x_vlc.distance < 70: return None
         vlc_denm = DENM(
             car_id = self.__v2x_vlc.name, 
@@ -32,7 +34,7 @@ class UC04Car1Controller(SumoStepListener):
             position = self.__v2x_vlc.position, 
             timestamp = self.cur_time
         )
-        self.__v2x_vlc.broadcast_by_wifi(vlc_denm)
+        self.__v2x_vlc.broadcast_by_wifi(vlc_denm.to_json())
         return None
     
     @SumoStepListener.Substeps(priority=8)
@@ -43,7 +45,7 @@ class UC04Car1Controller(SumoStepListener):
             if package.body.situation.cause != OBSTACLE: continue
             from_car_id = package.header.from_car_id
             if from_car_id != self.__v2x_vlc.name: continue 
-            self.__v2x_vlc.stop()
+            self.__v2x_vlc.speed = 0
             print(f'{self.__v2x_vlc.name} stops')
         self.__v2x_vlc.lane = self.__cur_lane
         return None
@@ -87,8 +89,7 @@ class UC04Car3Controller(SumoStepListener):
             package_str = self.__v2x_vlc.wifi_packages.get_nowait()
             package: DENM = json_to_package(package_str)
             if package.body.situation.cause != OBSTACLE: continue
-            cur_speed = self.__v2x_vlc.speed()
-            self.__v2x_vlc.speed(cur_speed*2)
+            self.__v2x_vlc.speed *= 2
             print(f'{self.__v2x_vlc.name} speeds up')
         self.__v2x_vlc.lane = self.__cur_lane
         return None
@@ -155,7 +156,7 @@ def topology():
         vlc.wifi_intf.setRange(200)
         vlc.wifi_intf.setIP(ipstr=f'192.168.1.{i}', prefixLen=24)
         vlc.wifi_intf.updateIP()
-    sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER')
+    sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER', verbose = True)
     sumo_ctl.add(UC04Car1Controller(vlcs[0], 1))
     sumo_ctl.add(UC04Car2Controller(vlcs[1], 1))
     sumo_ctl.add(UC04Car3Controller(vlcs[2], 0))

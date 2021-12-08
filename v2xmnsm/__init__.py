@@ -1,8 +1,6 @@
-from .main.extension import \
-    SumoControlThread, SumoStepListener,SumoInvoker, \
-    SumoVehicle, V2xTfcLight, V2xVehicle, DataRecorder
+from . import sumo
+from . import mnwf
 
-from .main.message import \
-    DENM, CAM, json_to_package,\
-    OBSTACLE, TRFFICLIGHT_GREEN, TRFFICLIGHT_RED
+from .recorder import DataRecorder
+from .v2x import V2xVehicle, V2xTfcLight
 

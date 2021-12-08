@@ -29,6 +29,10 @@ class SumoVehicle(object):
     @speed.setter
     def speed(self, ex_sp)-> None: 
         self.__vlc.setSpeed(self.__id, ex_sp)
+    
+    @property
+    def road(self) -> str:
+        return self.__vlc.getRoadID(self.__id)
 
     @property
     def distance(self) -> int: 

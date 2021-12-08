@@ -6,8 +6,10 @@ from mn_wifi.link import mesh, wmediumd
 from mininet.log import info, setLogLevel
 from mn_wifi.wmediumdConnector import interference
 
-from v2xmnsm import *
-from v2xmnsm.main.extension.mnwf.node import MnwfNode
+from v2xmnsm.sumo import SumoStepListener, SumoInvoker, SumoControlThread
+from v2xmnsm.msgs import CAM, DENM, TRFFICLIGHT_GREEN, TRFFICLIGHT_RED, json_to_package
+from v2xmnsm.mnwf import MnwfNode
+from v2xmnsm import V2xVehicle, V2xTfcLight
 
 UC03B_STATES = [
     'ALL_STOP', 
@@ -37,7 +39,7 @@ class UC03bVehicle(SumoStepListener):
             position = self.__v2x_vlc.position, 
             timestamp = self.cur_time
         )
-        self.__v2x_vlc.broadcast_by_mesh(vlc_cam)
+        self.__v2x_vlc.broadcast_by_mesh(vlc_cam.to_json())
 
 class UC03bTfcLight(SumoStepListener): 
     
@@ -71,7 +73,7 @@ class UC03bTfcLight(SumoStepListener):
             position=(0,0,0), 
             timestamp=self.cur_time
         )
-        self.__v2x_tfl.broadcast_by_mesh(denm)
+        self.__v2x_tfl.broadcast_by_mesh(denm.to_json())
 
 
 def topology():

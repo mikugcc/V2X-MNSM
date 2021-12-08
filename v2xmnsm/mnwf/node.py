@@ -4,9 +4,8 @@ from subprocess import PIPE, STDOUT, Popen
 from mn_wifi.node import Node_wifi
 from mn_wifi.net import IntfWireless
 
-
-from ...message.abs.package import Package
-from ...utils import async_readlines, exec
+from .helper.scripts import exec
+from .helper.async_func import async_readlines
 
 class MnwfNode(object): 
 
@@ -112,16 +111,16 @@ class MnwfNode(object):
     def __wifi_broadcaster(self) -> Popen: 
         return self.__get_broadcaster(self.wifi_intf, self.__port_num)
 
-    def __broadcast_by(self,broadcaster: Popen, package: Package) -> str: 
+    def __broadcast_by(self,broadcaster: Popen, data: str) -> str: 
         if not broadcaster: return None
-        handled_msg = package.to_json().replace('\n', '') + '\n'
+        handled_msg = data.replace('\n', '') + '\n'
         broadcaster.stdin.write(handled_msg)
         broadcaster.stdin.flush()
         return broadcaster.stdout.readline()
 
-    def broadcast_by_wifi(self, package: Package) -> str: 
-        return self.__broadcast_by(self.__wifi_broadcaster, package)
+    def broadcast_by_wifi(self, data: str) -> str: 
+        return self.__broadcast_by(self.__wifi_broadcaster, data)
 
-    def broadcast_by_mesh(self, package: Package) -> str: 
-        return self.__broadcast_by(self.__mesh_broadcaster, package)
+    def broadcast_by_mesh(self, data: str) -> str: 
+        return self.__broadcast_by(self.__mesh_broadcaster, data)
   

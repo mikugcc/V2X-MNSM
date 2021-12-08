@@ -1,10 +1,9 @@
 from typing import List
 from mn_wifi.node import Car, Node_wifi
-from v2xmnsm.main.extension.sumo.traffic_light import SumoTrafficLight
-from v2xmnsm.main.message.cam.package import CamPackage
+from .sumo.traffic_light import SumoTrafficLight
 
-from .mnwf.node import MnwfNode
-from .sumo.vehicle import SumoVehicle
+from .mnwf import MnwfNode
+from .sumo import SumoVehicle
 
 
 class V2xVehicle(SumoVehicle, MnwfNode): 

@@ -17,7 +17,7 @@ clean:
 	sudo rm .echo* || true
 	sudo rm position-* || true
 	sudo rm -rdf tmp || true
-	sudo find . -type d -name __pycache__ -prune || true
+	sudo rm -rf $(find . -type d -name __pycache__)
 	sudo mn -c
 
 init: 

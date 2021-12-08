@@ -7,7 +7,9 @@ from mn_wifi.link import wmediumd
 from mn_wifi.net import Mininet_wifi
 from mn_wifi.wmediumdConnector import interference
 
-from v2xmnsm import *
+from v2xmnsm.sumo import SumoStepListener, SumoInvoker, SumoControlThread
+from v2xmnsm.msgs import CAM, json_to_package
+from v2xmnsm import V2xVehicle, DataRecorder
 
 class UC02CarController(SumoStepListener): 
 
@@ -31,7 +33,7 @@ class UC02CarController(SumoStepListener):
             position = self.__v2x_vlc.position, 
             timestamp = self.cur_time
         )
-        self.__v2x_vlc.broadcast_by_mesh(vlc_cam)
+        self.__v2x_vlc.broadcast_by_mesh(vlc_cam.to_json())
 
     @SumoStepListener.Substeps(priority=8)
     def __handle_in_cam(self) -> None:
