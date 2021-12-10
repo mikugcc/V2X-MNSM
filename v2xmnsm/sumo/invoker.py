@@ -1,5 +1,5 @@
 from typing import List
-from mn_wifi.node import Car
+from mn_wifi.node import AP, Car
 from mn_wifi.sumo.sumolib.sumolib import checkBinary
 from mn_wifi.sumo.traci import main as traci, _vehicle
 from mn_wifi.sumo.runner import sumo
@@ -7,6 +7,10 @@ from subprocess import Popen, PIPE
 
 
 class SumoInvoker(sumo):
+
+    def __init__(self, cars: List[Car], aps: List[AP], **kwargs) -> None:
+        for car in cars: car.pos = car.position
+        return super().__init__(cars, aps, **kwargs)
 
     def start(self, 
         mnwf_vlc: List[Car], 

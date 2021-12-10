@@ -4,8 +4,8 @@ from subprocess import PIPE, STDOUT, Popen
 from mn_wifi.node import Node_wifi
 from mn_wifi.net import IntfWireless
 
-from .helper.scripts import exec
-from .helper.async_func import async_readlines
+from .utils.scripts import exec
+from .utils.async_func import async_readlines
 
 class MnwfNode(object): 
 
