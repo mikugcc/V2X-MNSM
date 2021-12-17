@@ -3,7 +3,8 @@ from typing import List
 from mn_wifi.link import mesh as Mesh, wmediumd
 from mn_wifi.wmediumdConnector import interference
 
-from v2xmnsm import V2xVehicle, V2xTfcLight, DataRecorder
+from v2xmnsm import V2xVehicle, V2xTfcLight
+from v2xmnsm.rcrd import MultiFileDataRecorder
 from v2xmnsm.mnwf import MnwfNode, MnwfCli, NetBuilder
 from v2xmnsm.sumo import SumoInvoker, SumoControlThread
 
@@ -52,8 +53,9 @@ if __name__ == '__main__':
     ]
 
     sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER', verbose=True)
+    sumo_ctl.add(MultiFileDataRecorder(mnwf_nodes[0], f'{project_path}/output'))
     sumo_ctl.add(UC03aVlcController(mnwf_nodes[0]))
-    sumo_ctl.add(DataRecorder(mnwf_nodes[0], f'{project_path}/output'))
+    sumo_ctl.add(MultiFileDataRecorder(mnwf_nodes[1], f'{project_path}/output'))
     sumo_ctl.add(UC03aTfclController(mnwf_nodes[1]))
 
     sumo_ctl.setDaemon(True)

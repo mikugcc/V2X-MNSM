@@ -1,35 +1,10 @@
 import os
-
-from mininet.log import info, setLogLevel
-from mn_wifi.cli import CLI
-from mn_wifi.link import mesh as Mesh
-from mn_wifi.link import wmediumd
-from mn_wifi.net import Mininet_wifi
-from mn_wifi.wmediumdConnector import interference
-
-from v2xmnsm.sumo import SumoStepListener, SumoInvoker, SumoControlThread
-from v2xmnsm.msgs import CAM, json_to_package
-from v2xmnsm import V2xVehicle, DataRecorder
-
-import os
-
-from mininet.log import info, setLogLevel
-from mn_wifi.cli import CLI
-from mn_wifi.link import mesh as Mesh
-from mn_wifi.link import wmediumd
-from mn_wifi.net import Mininet_wifi
-from mn_wifi.wmediumdConnector import interference
-
-from v2xmnsm.sumo import SumoStepListener, SumoInvoker, SumoControlThread
-from v2xmnsm.msgs import CAM, json_to_package
-from v2xmnsm import V2xVehicle, DataRecorder
-
-import os
 from mn_wifi.link import wmediumd
 from mn_wifi.link import mesh as Mesh
 from mn_wifi.wmediumdConnector import interference
 
 from v2xmnsm import V2xVehicle
+from v2xmnsm.rcrd import MultiFileDataRecorder
 from v2xmnsm.mnwf import NetBuilder, MnwfCli
 from v2xmnsm.sumo import SumoInvoker, SumoControlThread
 
@@ -77,10 +52,10 @@ if __name__ == '__main__':
         V2xVehicle('car2', net.cars[1]), 
     ]
     sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER')
+    sumo_ctl.add(MultiFileDataRecorder(vlcs[0], f'{project_path}/output'))
     sumo_ctl.add(UC02CarController(vlcs[0],5))
-    sumo_ctl.add(DataRecorder(vlcs[0], f'{project_path}/output'))
+    sumo_ctl.add(MultiFileDataRecorder(vlcs[1], f'{project_path}/output'))
     sumo_ctl.add(UC02CarController(vlcs[1],20))
-    sumo_ctl.add(DataRecorder(vlcs[1], f'{project_path}/output'))
 
 
     sumo_ctl.setDaemon(True)

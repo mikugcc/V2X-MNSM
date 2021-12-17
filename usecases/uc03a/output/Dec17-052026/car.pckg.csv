@@ -1,0 +1,2 @@
+FROM,BYTES,PROTOCOL,ID,GEN_TIME,REC_TIME,BODY
+gneJ1,438,DENM,82,4.1,4.2,"{'management': {'station_id': 0, 'sequence_id': 0, 'data_version': 0, 'expirity_time': 0, 'frequency': 0, 'reliablity': 100, 'is_negation': False}, 'situation': {'cause': 1, 'subcause': 0, 'severity': 2}, 'location': {'lane': 'None', 'position': [0, 0, 0], 'elevation': 0, 'trace_id': 0, 'way_point': (0, 0, 0)}}"

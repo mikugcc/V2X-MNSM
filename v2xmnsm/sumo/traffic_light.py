@@ -1,11 +1,12 @@
 from traci import trafficlight
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 class SumoTrafficLight(object): 
 
     def __init__(self, tfl_id: str, states: List[str]):
         self.__tfl_id = tfl_id
         self.__states = states.copy()
+        self.distance = 0
 
     @property
     def name(self) -> str:
@@ -25,3 +26,6 @@ class SumoTrafficLight(object):
         try: state_index = self.__states.index(state)
         except: return False
         trafficlight.setPhaseDuration(self.__tfl_id, state_index, duration)
+    
+    def get_leader_with_distance(self) -> Tuple: 
+        return (None, None)
