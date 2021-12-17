@@ -11,10 +11,10 @@ OBSTACLE = 0
 class CamPackage(Package): 
 
     def __init__(self, 
-        car_id: str, lane: str, leader:str, speed: int, position: Tuple[int, int], 
+        from_id: str, lane: str, leader:str, speed: int, position: Tuple[int, int], 
         timestamp:float=datetime.now().timestamp()
     ) -> None:
-        self.__header = Header(car_id, 'CAM', 0, Package._new_id(), timestamp) if car_id is not None else None
+        self.__header = Header(from_id, 'CAM', 0, Package._new_id(), timestamp) if from_id is not None else None
         self.__body = CamBody(lane, leader, speed, position) if lane is not None else None
         return None 
 

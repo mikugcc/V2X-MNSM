@@ -12,12 +12,13 @@ config:
 	$(info All data in sumo_config will be put into sumo_home)
 	sudo cp sumocfg/* ${SUMO_DATA}
 
+test: 
 clean: 
 	sudo rm mn* || true
 	sudo rm .echo* || true
 	sudo rm position-* || true
 	sudo rm -rdf tmp || true
-	sudo rm -rdf $(find . -type d -name __pycache__)
+	find . -type d -name __pycache__ | sudo rm -rdf
 	sudo mn -c
 
 init: 
@@ -27,3 +28,5 @@ init:
 
 stop: 
 	sudo pkill -9 make
+	sudo pkill -9 wmediumd
+

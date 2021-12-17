@@ -61,10 +61,10 @@ class SumoStepListener(traci.StepListener, metaclass=ABCMeta):
         if t == 0: t = 1 
         for _ in range(t): 
             self.__cur_step += 1
-            self.__step_one()
+            self._step_one()
         return True 
 
-    def __step_one(self) -> bool:
+    def _step_one(self) -> bool:
         '''
         The method will be invoked exact once in each traci step
         '''

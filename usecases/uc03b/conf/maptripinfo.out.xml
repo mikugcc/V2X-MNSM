@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- generated on 2021-11-30 15:24:32 by Eclipse SUMO GUI Version 1.10.0
+<!-- generated on 2021-12-17 00:18:56 by Eclipse SUMO GUI Version 1.10.0
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
 
     <input>
-        <net-file value="/home/wifi/v2x-fall-2021/usecases/sumocfg/uc03b/net.xml"/>
-        <route-files value="/home/wifi/v2x-fall-2021/usecases/sumocfg/uc03b/rou.xml"/>
+        <net-file value="/home/wifi/v2x-fall-2021/usecases/uc03b/conf/net.xml"/>
+        <route-files value="/home/wifi/v2x-fall-2021/usecases/uc03b/conf/rou.xml"/>
     </input>
 
     <output>
-        <tripinfo-output value="/home/wifi/v2x-fall-2021/usecases/sumocfg/uc03b/maptripinfo.out.xml"/>
+        <tripinfo-output value="/home/wifi/v2x-fall-2021/usecases/uc03b/conf/maptripinfo.out.xml"/>
     </output>
 
     <time>
@@ -34,7 +34,7 @@
     </traci_server>
 
     <gui_only>
-        <gui-settings-file value="/home/wifi/v2x-fall-2021/usecases/sumocfg/uc03b/gui-settings.cfg"/>
+        <gui-settings-file value="/home/wifi/v2x-fall-2021/usecases/uc03b/conf/gui-settings.cfg"/>
         <start value="false"/>
         <delay value="1000"/>
         <tracker-interval value="0.1"/>
@@ -44,4 +44,5 @@
 -->
 
 <tripinfos xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/tripinfo_file.xsd">
-    <tripinfo id="car1" depart="0.00" departLane="gneE0_0" departPos="5.10" departSpeed="0.00" departDelay="0.00" arrival="14.40" arrivalLane="gneE8_0" arrivalPos="42.80" arrivalSpeed="14.72" duration="14.40" routeLength="119.69" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="5.52" rerouteNo="0" devices="tripinfo_car1" vType="car" speedFactor="1.06" vaporized=""/>
+    <tripinfo id="car1" depart="0.00" departLane="gneE0_0" departPos="5.10" departSpeed="0.00" departDelay="0.00" arrival="12.80" arrivalLane="gneE8_0" arrivalPos="42.80" arrivalSpeed="14.72" duration="12.80" routeLength="119.69" waitingTime="0.00" waitingCount="0" stopTime="0.00" timeLoss="3.95" rerouteNo="0" devices="tripinfo_car1" vType="car" speedFactor="1.06" vaporized=""/>
+</tripinfos>

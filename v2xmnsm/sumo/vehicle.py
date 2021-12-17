@@ -1,5 +1,8 @@
-import traci
+from __future__ import annotations
 from typing import Tuple
+from math import sqrt
+
+import traci
 
 class SumoVehicle(object): 
 
@@ -7,6 +10,10 @@ class SumoVehicle(object):
         self.__vlc = traci.vehicle
         self.__id = sumo_v_id
         self.__duration = 0
+
+    @property
+    def safe_gap(self) -> int: 
+        return self.__vlc.getMinGap(self.__id) * 10
 
     @property
     def position(self) -> Tuple: 
@@ -39,7 +46,7 @@ class SumoVehicle(object):
         return self.__vlc.getDistance(self.__id) 
 
     @property
-    def heading(self) -> str:
+    def heading(self) -> float:
         return self.__vlc.getAngle(self.__id)
     
     @property
@@ -54,5 +61,11 @@ class SumoVehicle(object):
     def get_leader_with_distance(self) -> Tuple[str, float]: 
         out = self.__vlc.getLeader(self.__id)
         return out if out is not None else (None, None)
+
+    def distance_to(self, other_pos: Tuple[int, int, int]) -> int: 
+        x1, y1, z1 = self.position
+        x2, y2, z2 = other_pos
+        dis = sqrt(pow(x1-x2, 2) + pow(y1-y2, 2) + pow(z1-z2, 2))
+        return dis if x1 > x2 else -dis
 
     

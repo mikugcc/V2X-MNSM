@@ -1,6 +1,6 @@
+from v2xmnsm import V2xVehicle
 from v2xmnsm.sumo import SumoStepListener
 from v2xmnsm.msgs import DENM, OBSTACLE, json_to_package
-from v2xmnsm import V2xVehicle
 
 class UC01CarController(SumoStepListener): 
 
@@ -19,7 +19,7 @@ class UC01CarController(SumoStepListener):
         cur_dis = self.__v2x_vlc.distance
         if 75 <= cur_dis <= 125: 
             vlc_denm = DENM(
-                car_id = self.__v2x_vlc.name, 
+                from_id = self.__v2x_vlc.name, 
                 event = OBSTACLE, 
                 lane = 0, 
                 position = self.__v2x_vlc.position, 
@@ -33,7 +33,7 @@ class UC01CarController(SumoStepListener):
         for _ in range(self.__v2x_vlc.wifi_packages.qsize()): 
             package_str = self.__v2x_vlc.wifi_packages.get_nowait()
             package: DENM = json_to_package(package_str)
-            if package.header.from_car_id == self.__v2x_vlc.name: continue
+            if package.header.from_id == self.__v2x_vlc.name: continue
             if package.body.situation.cause != OBSTACLE: continue
             pkg_unique_id = str(package.body.situation.cause)+ str(package.body.location.position)
             if pkg_unique_id in self.__package_cache: continue

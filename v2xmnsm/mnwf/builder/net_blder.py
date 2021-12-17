@@ -2,6 +2,8 @@ from __future__ import annotations
 from typing import Dict, Any
 from mn_wifi.net import Mininet_wifi
 
+from v2xmnsm.mnwf.builder.node_blider.tfl_blder import TrafficLightBuilder
+
 from .node_blider.abs_node_builder import AbsNodeBuilder
 from .node_blider.vlc_blder import VehicleBuilder
 from .node_blider.apt_blder import AccessPointBuilder
@@ -21,6 +23,12 @@ class NetBuilder(object):
         node_key = f'{VehicleBuilder.__name__}.{car_name}'
         if node_key not in self.__node_builders: 
             self.__node_builders[node_key] = VehicleBuilder(car_name, self.__net)
+        return self.__node_builders[node_key]
+    
+    def new_traffic_light(self, tfl_name: str) -> TrafficLightBuilder:
+        node_key = f'{TrafficLightBuilder.__name__}.{tfl_name}'
+        if node_key not in self.__node_builders: 
+            self.__node_builders[node_key] = TrafficLightBuilder(tfl_name, self.__net)
         return self.__node_builders[node_key]
 
     def new_access_point(self, apt_name: str) -> AccessPointBuilder: 

@@ -9,14 +9,15 @@ from ..abs.package import Package
 OBSTACLE = 0
 TRFFICLIGHT_RED = 1
 TRFFICLIGHT_GREEN = 2
+LANE_CHANGING = 3
 
 class DenmPackage(Package): 
 
     def __init__(
-        self, car_id: str, event: int, lane: str, position: Tuple[int, int],
+        self, from_id: str, event: int, lane: str, position: Tuple[int, int],
         timestamp:float=datetime.now().timestamp()
     ) -> None:
-        self.__header = Header(car_id, 'DENM', 0, Package._new_id(), timestamp) if car_id is not None else None
+        self.__header = Header(from_id, 'DENM', 0, Package._new_id(), timestamp) if from_id is not None else None
         self.__body = DenmBody(event, lane, position) if event is not None else None
         return None 
 

@@ -8,16 +8,16 @@ class SumoTrafficLight(object):
         self.__states = states.copy()
 
     @property
-    def tfl_id(self) -> str:
+    def name(self) -> str:
         return self.__tfl_id
 
     @property
-    def state(self) -> str: 
+    def phase(self) -> str: 
         index = trafficlight.getPhase(self.__tfl_id)
         return self.__states[index]
 
-    @state.setter
-    def state(self, val: str): 
+    @phase.setter
+    def phase(self, val: str): 
         state_index = self.__states.index(val)
         return trafficlight.setPhase(self.__tfl_id, state_index)
 
