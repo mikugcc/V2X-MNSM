@@ -17,8 +17,8 @@ if __name__ == '__main__':
     net_builder.new_access_point('e1').opt_args(
         mac='00:00:00:11:00:01', channel='1', mode = 'g',
         ssid='vanet-ssid', passwd='123456789a', encrypt='wpa2', 
-        position='100,100,0', failMode='standalone', datapath='user', 
-        range=1
+        position='100,25,0', failMode='standalone', datapath='user', 
+        range=100
     )
     for index, cname in enumerate(['obs', 'car1', 'car2', 'car3'], 1):
         car = net_builder.new_car(cname)
@@ -29,7 +29,7 @@ if __name__ == '__main__':
         )
         car.add_intf(
             ip_v4=(f'192.168.1.{index}', 24), 
-            encrypt='wpa2', is_link=False, range=1
+            encrypt='wpa2', is_link=False, range=100
         )
     net = net_builder.build()
 

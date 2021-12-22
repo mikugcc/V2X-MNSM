@@ -33,7 +33,8 @@ class UC02CarController(SumoStepListener):
             package_str = self.__v2x_vlc.mesh_packages.get_nowait()
             package: CAM = json_to_package(package_str)
             if package.header.from_id != leader_car: continue
-            if dis_with_leader >= 75 and self.__cur_speed <= package.body.speed: continue
+            if dis_with_leader >= self.__v2x_vlc.safe_gap: continue
+            if self.__cur_speed <= package.body.speed: continue
             self.__cur_lane ^= 1
             print(package)
         return None

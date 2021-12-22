@@ -16,18 +16,18 @@ if __name__ == '__main__':
         mac='00:00:00:11:00:01', channel='1', mode = 'g',
         ssid='vanet-ssid', passwd='123456789a', encrypt='wpa2', 
         position='100,25,0', failMode='standalone', datapath='user', 
-        range=200
+        range=100
     )
     for index, cname in enumerate(['obs', 'car1', 'car2'], 1):
         car = net_builder.new_car(cname)
         car.add_intf(
             ip_v4=(f'192.168.0.{index}', 24), 
             protocol=Mesh, ssid='meshNet', 
-            channel=5, ht_cap='HT40+', range=20
+            channel=5, ht_cap='HT40+', range=50
         )
         car.add_intf(
             ip_v4=(f'192.168.1.{index}', 24), 
-            encrypt='wpa2', is_link=False, range=200
+            encrypt='wpa2', is_link=False, range=100
         )
     net = net_builder.build()
 
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         V2xVehicle('car1', net.cars[1]), 
         V2xVehicle('car2', net.cars[2]) 
     ]
-    sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER', verbose=True)
+    sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER', verbose=False)
     sumo_ctl.add(MultiFileDataRecorder(vlcs[0], f'{project_path}/output'))
     sumo_ctl.add(UC01CarController(vlcs[0], 1))
     sumo_ctl.add(MultiFileDataRecorder(vlcs[1], f'{project_path}/output'))

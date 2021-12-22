@@ -52,7 +52,7 @@ if __name__ == '__main__':
         V2xVehicle('car2', net.cars[2]), 
         V2xVehicle('car3', net.cars[3])
     ]
-    sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER', verbose=True)
+    sumo_ctl = SumoControlThread('SUMO_CAR_CONTROLLER')
     sumo_ctl.add(MultiFileDataRecorder(vlcs[0], f'{project_path}/output'))
     sumo_ctl.add(UC04Car1Controller(vlcs[0], 1))
     sumo_ctl.add(MultiFileDataRecorder(vlcs[1], f'{project_path}/output'))

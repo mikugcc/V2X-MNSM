@@ -14,13 +14,19 @@ from vlc import *
 if __name__ == '__main__':
     net_builder = NetBuilder(wmediumd, interference)
     net_builder.propagation_model(model="logDistance", exp=4.5)
+    net_builder.new_access_point('e1').opt_args(
+        mac='00:00:00:11:00:01', channel='1', mode = 'g',
+        ssid='vanet-ssid', passwd='123456789a', encrypt='wpa2', 
+        position='100,25,0', failMode='standalone', datapath='user', 
+        range=100
+    )
     net_builder.new_car('car').add_intf(
         ip_v4=(f'192.168.0.1', 24), 
         protocol=Mesh, ssid='meshNet', 
         channel=5, ht_cap='HT40+', range=50
     ).add_intf(
         ip_v4=(f'192.168.1.1', 24), 
-        encrypt='wpa2', is_link=False, range=50
+        encrypt='wpa2', is_link=False, range=100
     )
     net_builder.new_traffic_light('gneJ1').add_intf(
         ip_v4=(f'192.168.0.2', 24), 
@@ -28,7 +34,7 @@ if __name__ == '__main__':
         channel=5, ht_cap='HT40+', range=50
     ).add_intf(
         ip_v4=(f'192.168.1.2', 24), 
-        encrypt='wpa2', is_link=False, range=50
+        encrypt='wpa2', is_link=False, range=100
     )
     net = net_builder.build()
 

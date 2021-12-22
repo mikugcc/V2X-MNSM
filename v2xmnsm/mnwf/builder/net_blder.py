@@ -22,7 +22,9 @@ class NetBuilder(object):
     def new_car(self, car_name: str) -> VehicleBuilder: 
         node_key = f'{VehicleBuilder.__name__}.{car_name}'
         if node_key not in self.__node_builders: 
-            self.__node_builders[node_key] = VehicleBuilder(car_name, self.__net)
+            vlc_bder = VehicleBuilder(name=car_name, net=self.__net)
+            vlc_bder.opt_args(position='-100,-100,0')
+            self.__node_builders[node_key] = vlc_bder
         return self.__node_builders[node_key]
     
     def new_traffic_light(self, tfl_name: str) -> TrafficLightBuilder:
