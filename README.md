@@ -1,9 +1,23 @@
 # V2X 2021 Fall Yichao's Branch 
 
-##  1. Intro
+## 0. Preparation 
 
-This is Yichao's branch for V2X project. I focused on to implement the usecases by both MiniNet-Wifi and SUMO. We might change to Vein in future. 
+To use the packet, please ensure that you download all things required for the project, including python3.6+, pip3, and MiniNet-WiFi. 
 
+##  1. Install
+
+**Download.** Because we currently did not release our code online, you have to download the code from the bitbucket repository. Please use the command below to download the code. 
+```shell
+$ git clone git@bitbucket.org:projectV2X/v2x-fall-2021.git
+```
+
+(NOTICE: before you download the codes, please ensure you are granted to access the repository)
+
+**Install.** Please use the command below to install the packets. 
+```shell
+$ cd the_directory_of_project
+$ pip install .
+```
 ## 2. Usage 
 
 ### 2.1 Run the usecase 
