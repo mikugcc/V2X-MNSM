@@ -1,9 +1,9 @@
 # V2X-MNSM
 
 
-## 0. Introduction 
+##  0. Introduction 
 
-This is an extension library for MiniNet-WiFi on V2X communication. The original version of MiniNet-WiFi also support basic V2X communication, but the APIs are not design for V2X use cases. Our implementation focuses more on the reliability and usability. More-importantly, we partly implemented the ITS-G5 protocol (only on the application layer). The document includes the design and implementation of the library. If you are interesting about the further work, please contact with me by gcc.personal@outlook.com or alternatively yxu166@jhu.edu. 
+This is an extension library for MiniNet-WiFi on V2X communication. The original version of [MiniNet-WiFi](https://github.com/intrig-unicamp/mininet-wifi) also support basic V2X communication, but the APIs are not design for V2X use cases. Our implementation focuses more on the reliability and usability. More-importantly, we partly implemented the ITS-G5 protocol (only on the application layer). The document includes the design and implementation of the library. If you are interesting about the further work, please contact with me by gcc.personal@outlook.com or alternatively yxu166@jhu.edu. 
 
 To use the packet, please ensure that you download all things required for the project, including python3.6+, pip3, and MiniNet-WiFi. 
 
