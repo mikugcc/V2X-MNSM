@@ -11,7 +11,7 @@ To use the packet, please ensure that you download all things required for the p
 
 **Download.** Because we currently did not release our code online, you have to download the code from the bitbucket repository. Please use the command below to download the code. 
 ```shell
-$ git clone git@bitbucket.org:projectV2X/v2x-fall-2021.git
+$ git clone https://github.com/mikugcc/V2X-MNSM.git
 ```
 
 (NOTICE: before you download the codes, please ensure you are granted to access the repository)
