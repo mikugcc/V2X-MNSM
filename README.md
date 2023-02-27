@@ -1,6 +1,6 @@
 # V2X-MNSM
 
-We also provide the [English Version](./doc/README.EN.md)
+We also provide the [English Version](./docs/README.EN.md)
 
 ##  0. 简介 
 这是一个MiniNet-WiFi关于V2X通信的扩展库。[MiniNet-WiFi](https://github.com/intrig-unicamp/mininet-wifi)的原始版本也支持基本的V2X通信，但其API不是为V2X用例设计的。我们的实现更注重可靠性和实用性。更重要的是，我们部分地实现了ITS-G5协议（仅在应用层）。该文件包括库的设计和实现。如果你对进一步的工作感兴趣，请通过 gcc.personal@outlook.com 或 yxu166@jhu.edu 与我们取得联系。
