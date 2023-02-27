@@ -1,113 +1,115 @@
 # V2X-MNSM
 
+We also provide the [English Version](./doc/README.EN.md)
 
-##  0. Introduction 
+##  0. 简介 
+这是一个MiniNet-WiFi关于V2X通信的扩展库。[MiniNet-WiFi](https://github.com/intrig-unicamp/mininet-wifi)的原始版本也支持基本的V2X通信，但其API不是为V2X用例设计的。我们的实现更注重可靠性和实用性。更重要的是，我们部分地实现了ITS-G5协议（仅在应用层）。该文件包括库的设计和实现。如果你对进一步的工作感兴趣，请通过 gcc.personal@outlook.com 或 yxu166@jhu.edu 与我们取得联系。
 
-This is an extension library for MiniNet-WiFi on V2X communication. The original version of [MiniNet-WiFi](https://github.com/intrig-unicamp/mininet-wifi) also support basic V2X communication, but the APIs are not design for V2X use cases. Our implementation focuses more on the reliability and usability. More-importantly, we partly implemented the ITS-G5 protocol (only on the application layer). The document includes the design and implementation of the library. If you are interesting about the further work, please contact with me by gcc.personal@outlook.com or alternatively yxu166@jhu.edu. 
+为了使用此扩展库，请确保你下载了项目所需的所有东西，包括python3.6+，pip3和MiniNet-WiFi。
 
-To use the packet, please ensure that you download all things required for the project, including python3.6+, pip3, and MiniNet-WiFi. 
+##  1. 安装
 
-##  1. Install
+**下载** 此项目目前使用Github进行版本管理我们，请使用下面的命令来下载代码。
 
-**Download.** Because we currently did not release our code online, you have to download the code from the bitbucket repository. Please use the command below to download the code. 
 ```shell
 $ git clone https://github.com/mikugcc/V2X-MNSM.git
 ```
 
-(NOTICE: before you download the codes, please ensure you are granted to access the repository)
+(注意：在你下载代码之前，请确保你被授予访问存储库的权利。）
 
-**Install.** Please use the command below to install the packets. 
+**安装**请使用下面的命令来安装此库
+
 ```shell
 $ cd the_directory_of_project
 $ pip install .
 ```
-## 2. Usage 
+## 2. 使用方法 
 
-### 2.1 Run the usecase 
+### 2.1 运行usecase 
 
-Simply use the command below to run the usecase 01, in which you can change the value after `=` to specify the exact usecase to execute. 
+只需使用下面的命令来运行 usecase 01，其中你可以改变`=`后面的值来指定要执行的确切usecase。
 
-Please also make sure the MiniNet-Wifi has already been downloaded to your device. 
+也请确保[MiniNet-WiFi](https://github.com/intrig-unicamp/mininet-wifi)已经被下载到你的设备上。
 
 ```shell 
 $ make usecase=01 
 ```
 
-If there are any issue occurred, please run the following command. 
+如果有任何问题发生，请运行以下命令。
 
 ```shell 
 $ make clean 
 ```
 
-Optionally, you can run them together each time. 
+也可以通过一下指令代替，此指令会自动执行所有需要的命令。
 
 ```shell 
 $ make uc01
 ```
 
-### 2.2 Configure SUMO Map
+### 2.2 配置SUMO地图
 
-Directly modified the file put in the `usecases/sumocfg/...` directory. All changes will directly and automatically set to the SUMO environment. 
+直接修改放在`usecases/sumocfg/...`目录中的文件。所有的修改将直接自动设置到SUMO环境中。
 
-## 3. Dev Doc
+## 3. 开发文件
 
-### 3.1 V2XMNSM
+### 3.1 v2xmnsm
 
-We put most reusable codes into a directory, `v2xmnsm`, where we follow the codes structure of those that are mostly used in the build tools such as Maven and Gradle. 
+我们把大多数可重用的代码放在一个目录下，`v2xmnsm`，我们遵循那些主要用于构建工具的代码结构，如Maven和Gradle。
 
-The directory `v2xmnsm/test` is for testing, and `v2xmnsm/main` is the module codes. There are many public interfaces, in which most important two are the SumoStepListener class and V2xVehicle class. 
+`v2xmnsm/test`目录用于测试，`v2xmnsm/main`是模块代码。有许多公共接口，其中最重要的两个是SumoStepListener类和V2xVehicle类。
 
 #### 3.1.1 SumoStepListener
 
-We follow the `Listener` pattern in SUMO traci. Specifically, we provide an abstract class `SumoStepListener`, which can be registered to the SUMO Traci, and the `__step_core` method in the class will be invoked exactly once in each step. 
+我们遵循SUMO traci中的`Listener`模式。具体来说，我们提供了一个抽象类`SumoStepListener`，它可以被注册到SUMO Traci中，该类中的`__step_core`方法将在每个步骤中被精确调用一次。
 
-The reason why we design it as an abstract class is performance limit. If we implement all logic of an autonomous vehicle, the simulation for a single usecase will be too time-consuming to afford. The abstract class allow us to implement what we need for each usecase. 
+我们把它设计成一个抽象类的原因是性能限制。如果我们实现了自动驾驶汽车的所有逻辑，那么单个用例的模拟将过于耗时，我们无法承担。继承抽象类允许我们为每个用例单独实现并运行所需要的东西。
 
-There are two ways to implement vehicle logic in the `SumoStepListener` class. We suggest to use the decorator (or called as annotation in Java), `SumoStepListener.Substep`. When a method is marked by the decorator, it will be executed in each step of the listener. Besides, it also allow to specify the `priority` of a substep. 
+在 "SumoStepListener "类中，有两种方法来实现车辆逻辑。我们建议使用装饰器（在Java中称为注解），`SumoStepListener.Substep`。当一个方法被装饰器标记后，它将在监听器的每个步骤中被执行。此外，它还允许指定一个子步骤的 "优先级"。
 
 ``` py
-# The method below will be executed 
-# exactly once in each simulation step.
+# 下面的方法将被执行 
+# 在每个模拟步骤中精确执行一次。
 @SumoStepListener.Substep(priority=10)
 def do_something(self) -> None: 
     ...
 ```
 
-Another way is to override the `__step_one` method, which is also allowable in our program. However, overriding the method will make all substep methods disabled.  
+另一种方法是覆盖`__step_one`方法，这在我们的程序中也是允许的。然而，覆盖该方法将使所有子步骤方法失效。 
 
 ```py 
-# The method below will be executed 
-# exactly once in each simulation step.
+# 下面的方法将被执行 
+# 在每个模拟步骤中精确执行一次。
 def __step_one(self) -> None: 
     ...
 ```
 
 #### 3.1.2 V2xVehicle
 
-The class encapsulates most methods in the Mininet-wifi and the sumo-traci vehicle. It provides us with methods about network communicating, vehicle controlling, etc.
+该类封装了Mininet-wifi和sumo-traci车辆中的大部分方法。它为我们提供了有关网络通信、车辆控制等方法。
 
 ```py
-# The method will broadcast 
-# a packet by mesh interface
+# 该方法将广播 
+# 通过Mesh接口播送一个数据包
 v2x_vlc.broadcast_by_mesh(...)
-# The method will broadcast 
-# a packet by wifi interface
+# 该方法将广播 
+# 通过wifi接口广播一个数据包
 v2x_vlc.broadcast_by_wifi(...)
-# It is also possible to get  
-# or set the speed of a vehicle
+# 也可以通过下面的property 
+# 或设置车辆的速度
 cur_speed = v2x_vlc.speed 
 v2x_vlc.speed = 0
 ```
 
-### 3.2 Usecases
+### 3.2 开发Usecases
 
-Before starting the development, it is essential to install the module by pip3 locall. It can be done automatically by the command below. 
+在开始开发之前，必须用pip3 locall安装模块。它可以通过下面的命令自动完成。
 
 ```shell
 $ make init
 ```
 
-We put most codes about a usecase into the directory `usecases`. Specifically, the `usecases/uc02` is for usecase02. Codes below are part of the uc02. 
+我们把关于一个用例的大部分代码放在`usecases`目录中。具体来说，`usecases/uc02`是针对usecase02的。下面的代码是uc02的一部分。
 
 ```py 
 # Implement of `SumoStepListener`
